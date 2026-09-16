@@ -61,6 +61,20 @@ export function eventsSince(sinceId: number, limit = 200): ChatEvent[] {
   return rows.map(hydrate);
 }
 
+/**
+ * Eventos anteriores a un id, devueltos en orden cronológico. Es lo que pide el
+ * feed al llegar arriba del todo: el SSE sólo manda una ventana reciente, y sin
+ * esto el historial existe en SQLite pero no hay forma de alcanzarlo.
+ */
+export function eventsBefore(beforeId: number, limit = 80): ChatEvent[] {
+  const c = conn();
+  if (!c) return [];
+  const rows = c
+    .prepare(`SELECT ${COLS} FROM events WHERE id < ? ORDER BY id DESC LIMIT ?`)
+    .all(beforeId, limit) as Row[];
+  return rows.reverse().map(hydrate);
+}
+
 export function stats() {
   const c = conn();
   if (!c) return { total: 0, byPlatform: [], viewers: [] };

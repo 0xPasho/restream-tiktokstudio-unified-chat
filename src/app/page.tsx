@@ -34,7 +34,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   }
 
   return (
-    <main className="mx-auto flex h-dvh max-w-[520px] flex-col gap-3 p-3">
+    // Crece con la ventana hasta 860px y nunca baja de 420, salvo que la
+    // ventana sea aún más angosta — ahí manda el 100% para que no desborde.
+    <main
+      className="mx-auto flex h-dvh w-full max-w-[860px] flex-col p-2 sm:p-3"
+      style={{ minWidth: 'min(100%, 420px)' }}
+    >
       <ChatFeed />
     </main>
   );

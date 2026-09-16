@@ -5,23 +5,16 @@ import { ArrowDown } from 'lucide-react';
 import { ChatMessage } from './chat-message';
 import { PlatformIcon } from './platform-icon';
 import { SettingsDialog } from './settings-dialog';
-import { PLATFORM_META, type Platform } from '@/lib/types';
+import { PLATFORM_META, type ChatEvent, type Platform } from '@/lib/types';
 import { collapse } from '@/lib/collapse';
-import { useChatStream, type ConnState } from '@/lib/use-chat-stream';
+import { useChatStream } from '@/lib/use-chat-stream';
 import { passesView, useViewPrefs } from '@/lib/view-prefs';
 import { cn } from '@/lib/utils';
 
 const PLATFORMS: Platform[] = ['tiktok', 'twitch', 'youtube', 'kick'];
-const MAX = 400;   // tope en memoria; el historial completo vive en SQLite
-
-/** Cómo se ve cada estado de conexión en el botón de plataforma. */
-const STATE_DOT: Record<ConnState, string> = {
-  connected:    'bg-emerald-400',
-  connecting:   'bg-amber-400 animate-pulse',
-  disconnected: 'bg-amber-500',
-  error:        'bg-red-500',
-  offline:      'bg-zinc-600',
-};
+const MAX = 2000;       // tope en memoria; el historial completo vive en SQLite
+const PAGE = 80;        // mensajes por página de historial
+const NEAR_TOP = 120;   // px desde arriba que disparan la carga
 
 export function ChatFeed() {
   const prefs = useViewPrefs();
@@ -34,12 +27,51 @@ export function ChatFeed() {
 
   // Contar los no leídos aquí, donde llegan los datos, evita un setState
   // dentro de un efecto y el render extra por mensaje que eso implica.
-  const { events, stats, live } = useChatStream({
+  const { events, stats, prepend } = useChatStream({
     max: MAX,
     onFresh: (fresh) => {
       if (!pinnedRef.current) setUnread((n) => n + fresh.length);
     },
   });
+
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const loadingRef = useRef(false);   // legible desde el handler de scroll
+
+  /**
+   * Trae la página anterior y restaura la posición de lectura.
+   *
+   * Anteponer nodos crece el contenido hacia arriba, así que sin corregir el
+   * scroll la vista saltaría: hay que sumarle lo que creció el documento.
+   */
+  const loadOlder = useCallback(async () => {
+    const el = scroller.current;
+    const oldest = events[0];
+    if (!el || !oldest || loadingRef.current || !hasMore) return;
+
+    loadingRef.current = true;
+    setLoadingOlder(true);
+    const before = el.scrollHeight;
+
+    try {
+      const res = await fetch(`/api/history?before=${oldest.id}&limit=${PAGE}`);
+      const data: { events: ChatEvent[]; hasMore: boolean } = await res.json();
+
+      if (data.events.length) {
+        prepend(data.events);
+        // Esperar al repintado para medir la altura nueva.
+        requestAnimationFrame(() => {
+          el.scrollTop += el.scrollHeight - before;
+        });
+      }
+      setHasMore(data.hasMore);
+    } catch {
+      setHasMore(false);   // no reintentar en bucle si el endpoint falla
+    } finally {
+      loadingRef.current = false;
+      setLoadingOlder(false);
+    }
+  }, [events, hasMore, prepend]);
 
   const visible = useMemo(
     () => collapse(events.filter((e) => !hidden.has(e.platform) && passesView(e, prefs))),
@@ -58,11 +90,14 @@ export function ChatFeed() {
   const onScroll = useCallback(() => {
     const el = scroller.current;
     if (!el) return;
+
     const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 48;
     pinnedRef.current = atBottom;
     setPinned(atBottom);
     if (atBottom) setUnread(0);
-  }, []);
+
+    if (el.scrollTop < NEAR_TOP) void loadOlder();
+  }, [loadOlder]);
 
   const toBottom = () => {
     const el = scroller.current;
@@ -81,61 +116,47 @@ export function ChatFeed() {
     });
 
   const counts = Object.fromEntries((stats?.byPlatform ?? []).map((r) => [r.platform, r.n]));
-  const viewers = (stats?.viewers ?? []).reduce((a, r) => a + (r.viewers ?? 0), 0);
   const errors = stats?.status?.errors ?? [];
   const connected = PLATFORMS.filter((p) => stats?.status?.platforms?.[p]?.state === 'connected')
     .map((p) => PLATFORM_META[p].label);
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl border border-white/8 bg-[#0d0d10]">
-      {/* ── encabezado ── */}
-      <header className="flex items-center gap-2 border-b border-white/8 px-3 py-2">
-        <span className="flex items-center gap-1.5 text-[13px] font-semibold text-zinc-200">
-          <span className={cn('size-1.5 rounded-full', live ? 'animate-pulse bg-emerald-400' : 'bg-zinc-600')} />
-          Chat unificado
-        </span>
+      {/* ── encabezado: los logos son el título ── */}
+      <header className="flex items-center gap-1 border-b border-white/8 px-2 py-2">
+        {PLATFORMS.map((p) => {
+          const off = hidden.has(p);
+          const conn = stats?.status?.platforms?.[p];
+          return (
+            <button
+              key={p}
+              onClick={() => toggle(p)}
+              title={[
+                PLATFORM_META[p].label,
+                conn?.detail ?? conn?.state,
+                counts[p] ? `${counts[p]} mensajes` : null,
+                off ? 'oculto — clic para mostrar' : 'clic para ocultar',
+              ].filter(Boolean).join(' · ')}
+              aria-pressed={!off}
+              className={cn(
+                'flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium transition',
+                'focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none',
+                off ? 'text-zinc-600 hover:text-zinc-400' : 'text-zinc-200 hover:bg-white/5',
+              )}
+              style={!off ? { backgroundColor: `${PLATFORM_META[p].color}1f` } : undefined}
+            >
+              <PlatformIcon
+                platform={p}
+                className="size-3.5"
+                style={{ color: off ? undefined : PLATFORM_META[p].color }}
+              />
+              <span className="tabular-nums">{counts[p] ?? 0}</span>
+            </button>
+          );
+        })}
 
-        <div className="ml-auto flex items-center gap-1">
-          {PLATFORMS.map((p) => {
-            const off = hidden.has(p);
-            const conn = stats?.status?.platforms?.[p];
-            const state = conn?.state ?? 'connecting';
-            return (
-              <button
-                key={p}
-                onClick={() => toggle(p)}
-                title={[
-                  PLATFORM_META[p].label,
-                  conn?.detail ?? state,
-                  counts[p] ? `${counts[p]} mensajes` : null,
-                  off ? 'oculto — clic para mostrar' : 'clic para ocultar',
-                ].filter(Boolean).join(' · ')}
-                aria-pressed={!off}
-                className={cn(
-                  'relative flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium transition',
-                  'focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none',
-                  off ? 'text-zinc-600 hover:text-zinc-400' : 'text-zinc-200 hover:bg-white/5',
-                )}
-                style={!off ? { backgroundColor: `${PLATFORM_META[p].color}1f` } : undefined}
-              >
-                <PlatformIcon
-                  platform={p}
-                  className="size-3.5"
-                  style={{ color: off ? undefined : PLATFORM_META[p].color }}
-                />
-                <span className="tabular-nums">{counts[p] ?? 0}</span>
-                <span
-                  className={cn(
-                    'absolute -top-px -right-px size-1.5 rounded-full ring-2 ring-[var(--chat-bg)]',
-                    STATE_DOT[state],
-                  )}
-                  aria-hidden
-                />
-              </button>
-            );
-          })}
-
-          <SettingsDialog />
+        <div className="ml-auto">
+          <SettingsDialog stats={stats} />
         </div>
       </header>
 
@@ -144,7 +165,7 @@ export function ChatFeed() {
         <div
           ref={scroller}
           onScroll={onScroll}
-          className="h-full overflow-y-auto overscroll-contain scroll-smooth px-1.5 py-2"
+          className="flex h-full flex-col overflow-y-auto overscroll-contain px-1.5 py-2"
         >
           {visible.length === 0 ? (
             <div className="grid h-full place-items-center px-6 text-center">
@@ -164,9 +185,22 @@ export function ChatFeed() {
               </div>
             </div>
           ) : (
-            // `justify-end` + `min-h-full`: con pocos mensajes se pegan abajo,
-            // como cualquier chat, en vez de flotar arriba dejando un hueco.
-            <ul className="flex min-h-full flex-col justify-end gap-0.5">
+            // `mt-auto` y NO `justify-end`: ambos pegan los mensajes abajo cuando
+            // son pocos, pero `justify-end` en un contenedor con scroll empuja el
+            // desbordamiento por encima del borde de inicio, donde el navegador no
+            // puede llegar — el contenido viejo queda visible para el layout pero
+            // imposible de alcanzar scrolleando.
+            <ul className="mt-auto flex flex-col gap-0.5">
+              {(loadingOlder || hasMore) && (
+                <li className="py-2 text-center text-[11px] text-zinc-600">
+                  {loadingOlder ? 'Cargando mensajes anteriores…' : ''}
+                </li>
+              )}
+              {!hasMore && (
+                <li className="py-2 text-center text-[11px] text-zinc-700">
+                  Principio del historial
+                </li>
+              )}
               {visible.map((e, i) => (
                 <ChatMessage
                   key={e.id}
@@ -189,17 +223,15 @@ export function ChatFeed() {
         )}
       </div>
 
-      {/* ── pie ── */}
-      <footer className="flex items-center gap-2 border-t border-white/8 px-3 py-1.5 text-[11px] text-zinc-500">
-        {prefs.messagesOnly && (
-          <span className="rounded-full bg-white/8 px-1.5 py-px text-zinc-300">sólo mensajes</span>
-        )}
-        {!prefs.showBots && <span className="text-zinc-600">sin bots</span>}
-        <span className="ml-auto tabular-nums">
-          {viewers > 0 && <>👁 {viewers.toLocaleString('es-MX')} · </>}
-          {stats?.total.toLocaleString('es-MX') ?? 0} eventos
-        </span>
-      </footer>
+      {/* ── pie: sólo recuerda que estás viendo una vista recortada ── */}
+      {(prefs.messagesOnly || !prefs.showBots) && (
+        <footer className="flex items-center gap-2 border-t border-white/8 px-3 py-1.5 text-[11px] text-zinc-500">
+          {prefs.messagesOnly && (
+            <span className="rounded-full bg-white/8 px-1.5 py-px text-zinc-300">sólo mensajes</span>
+          )}
+          {!prefs.showBots && <span>sin bots</span>}
+        </footer>
+      )}
     </div>
   );
 }

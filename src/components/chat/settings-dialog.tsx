@@ -17,8 +17,27 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { setViewPrefs, useViewPrefs } from '@/lib/view-prefs';
+import { cn } from '@/lib/utils';
+import { PlatformIcon } from './platform-icon';
+import { PLATFORM_META, type Platform } from '@/lib/types';
+import type { ConnState, Stats } from '@/lib/use-chat-stream';
 
 type Settings = { restreamToken: string; tiktokUsername: string };
+
+const PLATFORMS: Platform[] = ['tiktok', 'twitch', 'youtube', 'kick'];
+
+/**
+ * El estado se dice con palabras y color de texto, no con un punto parpadeante:
+ * algo que late en el borde de la vista compite con el chat, que es lo que
+ * realmente hay que mirar mientras transmites.
+ */
+const STATE_LABEL: Record<ConnState, { text: string; cls: string }> = {
+  connected:    { text: 'Conectado',     cls: 'text-emerald-400' },
+  connecting:   { text: 'Conectando…',   cls: 'text-amber-400' },
+  disconnected: { text: 'Reconectando…', cls: 'text-amber-400' },
+  error:        { text: 'Error',         cls: 'text-red-400' },
+  offline:      { text: 'Apagado',       cls: 'text-zinc-500' },
+};
 
 /** Acepta la URL completa del embed o sólo el token; de la URL extrae el token. */
 function extractToken(raw: string): string {
@@ -56,7 +75,7 @@ function Toggle({
   );
 }
 
-export function SettingsDialog() {
+export function SettingsDialog({ stats }: { stats: Stats | null }) {
   const prefs = useViewPrefs();
   const [open, setOpen] = useState(false);
   const [token, setToken] = useState('');
@@ -64,6 +83,8 @@ export function SettingsDialog() {
   const [reveal, setReveal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const viewers = (stats?.viewers ?? []).reduce((a, r) => a + (r.viewers ?? 0), 0);
 
   // Cargar al abrir y no al montar, para que el modal nunca muestre algo
   // desactualizado. Va en el handler de apertura y no en un efecto: así el
@@ -114,7 +135,9 @@ export function SettingsDialog() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-md">
+      {/* Sólo el cuerpo hace scroll: con tres secciones el modal ya es más alto
+          que pantallas chicas, y los botones no deben irse con el contenido. */}
+      <DialogContent className="flex max-h-[85dvh] flex-col sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Ajustes</DialogTitle>
           <DialogDescription>
@@ -122,7 +145,7 @@ export function SettingsDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-1">
+        <div className="-mx-1 min-h-0 flex-1 space-y-4 overflow-y-auto px-1 py-1">
           <p className="text-[11px] font-semibold tracking-wide text-zinc-400 uppercase">Fuentes</p>
           <div className="space-y-1.5">
             <Label htmlFor="token">Token de Restream</Label>
@@ -201,6 +224,44 @@ export function SettingsDialog() {
             <p className="text-[11px] text-zinc-600">
               La vista se guarda en este navegador y se aplica al instante.
             </p>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <p className="text-[11px] font-semibold tracking-wide text-zinc-400 uppercase">Estado</p>
+
+            <ul className="space-y-1.5">
+              {PLATFORMS.map((p) => {
+                const conn = stats?.status?.platforms?.[p];
+                const state = STATE_LABEL[conn?.state ?? 'connecting'];
+                return (
+                  <li key={p} className="flex items-center gap-2 text-[12px]">
+                    <PlatformIcon
+                      platform={p}
+                      className="size-3.5 shrink-0"
+                      style={{ color: PLATFORM_META[p].color }}
+                    />
+                    <span className="w-14 shrink-0 text-zinc-300">{PLATFORM_META[p].label}</span>
+                    <span className="min-w-0 flex-1 truncate text-zinc-500">{conn?.detail ?? ''}</span>
+                    <span className={cn('shrink-0 font-medium', state.cls)}>{state.text}</span>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <p className="pt-1 text-[11px] text-zinc-500 tabular-nums">
+              {viewers > 0 && <>{viewers.toLocaleString('es-MX')} espectadores · </>}
+              {(stats?.total ?? 0).toLocaleString('es-MX')} eventos guardados
+            </p>
+
+            {(stats?.status?.errors?.length ?? 0) > 0 && (
+              <ul className="space-y-0.5 pt-1 text-[11px] text-amber-400/80">
+                {stats!.status!.errors.slice(0, 3).map((e, i) => (
+                  <li key={i}>{e}</li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 

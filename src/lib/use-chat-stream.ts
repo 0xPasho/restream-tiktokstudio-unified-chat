@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChatEvent, Platform } from './types';
 
 export type ConnState = 'connecting' | 'connected' | 'disconnected' | 'error' | 'offline';
@@ -23,7 +23,7 @@ export type Stats = {
  * no leídos sin meter un setState dentro de un efecto.
  */
 export function useChatStream({
-  max = 400,
+  max = 2000,
   onFresh,
 }: {
   max?: number;
@@ -56,7 +56,12 @@ export function useChatStream({
 
     es.addEventListener('events', (e) => {
       const fresh: ChatEvent[] = JSON.parse((e as MessageEvent).data);
-      setEvents((prev) => [...prev, ...fresh].slice(-max));
+      setEvents((prev) => {
+        const next = [...prev, ...fresh];
+        // El recorte va por delante: al llegar al tope suelta lo más viejo, que
+        // siempre se puede volver a pedir con /api/history.
+        return next.length > max ? next.slice(-max) : next;
+      });
       onFreshRef.current?.(fresh);
     });
 
@@ -65,5 +70,14 @@ export function useChatStream({
     return () => es.close();
   }, [max]);
 
-  return { events, stats, live };
+  /** Antepone una página de historial, sin duplicar lo que ya está en pantalla. */
+  const prepend = useCallback((older: ChatEvent[]) => {
+    setEvents((prev) => {
+      const known = new Set(prev.map((e) => e.id));
+      const fresh = older.filter((e) => !known.has(e.id));
+      return fresh.length ? [...fresh, ...prev] : prev;
+    });
+  }, []);
+
+  return { events, stats, live, prepend };
 }
