@@ -120,8 +120,18 @@ In **OBS**: add a *Browser* source, paste that URL, and check *Shutdown source
 when not visible*. No custom CSS needed — the page already renders with an alpha
 channel. TikTok Studio works the same way with its browser source.
 
-Each message sits on a translucent pill with a blur behind it. That is not
-decoration: without it the text disappears against bright scenes.
+Each message sits on a near-opaque pill with a dark stroke around the letters.
+Neither is decoration. A *translucent* black pill separates nothing when what is
+behind it is already dark — screen-sharing an editor or a docs page is exactly
+that case, and the chat ends up competing with the text underneath. The letter
+stroke is the backup: even if a scene defeats the pill, the glyphs keep their own
+edge.
+
+If the chat still gets lost against your scene, raise the opacity:
+
+```
+http://localhost:7637/?stream&opacity=0.95
+```
 
 ### Parameters
 
@@ -129,7 +139,9 @@ decoration: without it the text disappears against bright scenes.
 |---|---|---|
 | `ttl` | `0` | Seconds before a message fades out. `0` keeps them |
 | `max` | `12` | How many messages are visible at once (1–60) |
-| `scale` | `1` | Text scale (0.5–3), to match your scene resolution |
+| `scale` | `1.1` | Text scale (0.5–3), to match your scene resolution |
+| `opacity` | `0.82` | Background opacity behind each message (0–1) |
+| `outline` | on | Dark stroke around the letters |
 | `events` | on | Gifts, follows, subs, raids and shares |
 | `likes` | **off** | Likes |
 | `bots` | **off** | Streamlabs and similar |

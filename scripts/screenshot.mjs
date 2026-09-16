@@ -29,8 +29,6 @@ const MOCK_SCENE = `
   }
 `;
 
-/** El indicador de dev de Next no debe salir en las capturas del README. */
-const HIDE_DEV_BADGE = `nextjs-portal { display: none !important; }`;
 
 /**
  * README mode serves a fixed set of real messages instead of whatever happens to
@@ -77,7 +75,6 @@ async function shoot({ url, out, overlay, scene, fixture }) {
   if (fixture) await serveFixture(page);   // debe registrarse antes del goto
 
   await page.goto(url, { waitUntil: 'networkidle' });
-  await page.addStyleTag({ content: HIDE_DEV_BADGE });
   await page.waitForTimeout(fixture ? 2500 : 6000);
 
   if (scene) {

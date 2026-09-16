@@ -25,7 +25,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
     const opts: OverlayOptions = {
       ttl: num(sp.ttl, 0, 0, 3600),        // 0 = los mensajes no caducan
       max: num(sp.max, 12, 1, 60),
-      scale: num(sp.scale, 1, 0.5, 3),
+      scale: num(sp.scale, 1.1, 0.5, 3),   // un poco más grande: se lee de lejos
+      opacity: num(sp.opacity, 0.82, 0, 1),
+      outline: flag(sp.outline, true),
       events: flag(sp.events, true),       // regalos, follows, subs, raids
       likes: flag(sp.likes, false),        // llegan en ráfaga; entierran el chat
       bots: flag(sp.bots, false),          // Streamlabs y compañía ensucian el stream

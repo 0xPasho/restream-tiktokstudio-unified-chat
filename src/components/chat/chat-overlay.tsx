@@ -16,6 +16,10 @@ export type OverlayOptions = {
   max: number;
   /** Escala del texto, para ajustar a la resolución de la escena. */
   scale: number;
+  /** Opacidad del fondo de cada mensaje (0–1). */
+  opacity: number;
+  /** Contorno oscuro alrededor de las letras. */
+  outline: boolean;
   /** Mostrar regalos, follows, subs, raids y compartidos. */
   events: boolean;
   /** Mostrar likes. Aparte de `events` porque llegan en ráfaga constante. */
@@ -58,6 +62,22 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
     bottom.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [visible.length]);
 
+  /**
+   * Contorno real alrededor de las letras, no una sombra difusa.
+   *
+   * `paint-order: stroke fill` dibuja el trazo por debajo del relleno, así el
+   * texto conserva su forma en vez de engordar. Es el seguro de vida del
+   * overlay: aunque el fondo de la píldora falle contra cierta escena, las
+   * letras siguen teniendo borde propio.
+   */
+  const textEdge: React.CSSProperties = opts.outline
+    ? {
+        paintOrder: 'stroke fill',
+        WebkitTextStroke: '0.085em rgba(0,0,0,0.92)',
+        textShadow: '0 1px 2px rgba(0,0,0,0.85)',
+      }
+    : { textShadow: '0 1px 3px rgba(0,0,0,0.9)' };
+
   return (
     <div
       data-overlay
@@ -72,15 +92,17 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
           return (
             <li
               key={e.id}
-              // El fondo semiopaco con blur es lo que hace legible el texto
-              // encima de cualquier video; sin él el chat se pierde en escenas claras.
-              // Sin borde ni anillo: sobre video esas orillas se ven sucias, y la
-              // plataforma ya se identifica por el chip del avatar.
+              // Un negro translúcido no separa nada cuando lo que hay detrás ya
+              // es oscuro — compartir pantalla de un editor o de GitHub era
+              // justo ese caso. Por eso el fondo es casi opaco por defecto y se
+              // puede subir con ?opacity.
               className={cn(
                 'animate-overlay-in flex w-fit max-w-full items-start gap-[0.5em] rounded-[0.7em]',
-                'bg-black/55 px-[0.6em] py-[0.4em] backdrop-blur-[2px]',
-                !isChat && 'bg-black/45',
+                'px-[0.6em] py-[0.4em] backdrop-blur-sm',
               )}
+              style={{
+                backgroundColor: `rgba(9, 9, 11, ${isChat ? opts.opacity : opts.opacity * 0.9})`,
+              }}
             >
               <ChatAvatar
                 platform={e.platform}
@@ -93,10 +115,7 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
                 <span className="mr-[0.4em] inline-flex items-center gap-[0.3em] align-middle">
                   <span
                     className="text-[0.95em] font-bold"
-                    style={{
-                      color: e.color ?? userColor(e.user_id ?? e.handle ?? name),
-                      textShadow: '0 1px 3px rgba(0,0,0,.9)',
-                    }}
+                    style={{ color: e.color ?? userColor(e.user_id ?? e.handle ?? name), ...textEdge }}
                   >
                     {name}
                   </span>
@@ -104,8 +123,11 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
                 </span>
 
                 <span
-                  className={cn('text-[0.95em] leading-snug break-words', isChat ? 'text-white' : 'text-white/85 italic')}
-                  style={{ textShadow: '0 1px 3px rgba(0,0,0,.9)' }}
+                  className={cn(
+                    'text-[0.95em] leading-snug font-medium break-words',
+                    isChat ? 'text-white' : 'text-white/90 italic',
+                  )}
+                  style={textEdge}
                 >
                   {e.text}
                 </span>

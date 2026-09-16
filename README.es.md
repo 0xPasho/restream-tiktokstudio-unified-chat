@@ -122,8 +122,18 @@ la fuente cuando no esté visible*. No hace falta CSS personalizado — la pági
 ya entrega canal alfa. En TikTok Studio funciona igual con su fuente de
 navegador.
 
-Cada mensaje va sobre una píldora semitransparente con blur detrás. Eso no es
-decoración: sin ella el texto desaparece sobre escenas claras.
+Cada mensaje va sobre una píldora casi opaca y con las letras contorneadas.
+Ninguna de las dos cosas es decoración. Un negro *translúcido* no separa nada
+cuando lo que hay detrás ya es oscuro — compartir pantalla de un editor o de una
+página de documentación es justo ese caso, y el chat acaba compitiendo con el
+texto de abajo. El contorno de las letras es el respaldo: aunque una escena
+derrote a la píldora, los glifos conservan su propio borde.
+
+Si aun así el chat se te pierde contra tu escena, sube la opacidad:
+
+```
+http://localhost:7637/?stream&opacity=0.95
+```
 
 ### Parámetros
 
@@ -131,7 +141,9 @@ decoración: sin ella el texto desaparece sobre escenas claras.
 |---|---|---|
 | `ttl` | `0` | Segundos antes de que un mensaje desaparezca. `0` los deja |
 | `max` | `12` | Cuántos mensajes se ven a la vez (1–60) |
-| `scale` | `1` | Escala del texto (0.5–3), para ajustar a tu escena |
+| `scale` | `1.1` | Escala del texto (0.5–3), para ajustar a tu escena |
+| `opacity` | `0.82` | Opacidad del fondo de cada mensaje (0–1) |
+| `outline` | on | Contorno oscuro alrededor de las letras |
 | `events` | on | Regalos, follows, subs, raids y compartidos |
 | `likes` | **off** | Likes |
 | `bots` | **off** | Streamlabs y similares |

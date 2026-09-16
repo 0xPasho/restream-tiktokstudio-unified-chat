@@ -21,15 +21,15 @@ export function ChatAvatar({
   size?: number;
 }) {
   const meta = PLATFORM_META[platform];
-  const chip = Math.max(13, Math.round(size * 0.40));
+  const chip = Math.max(14, Math.round(size * 0.44));
 
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <Avatar className="size-full ring-1 ring-white/10">
         <AvatarImage src={avatar ?? undefined} alt="" loading="lazy" />
         <AvatarFallback
-          className="text-[11px] font-semibold text-white"
-          style={{ backgroundColor: meta.color }}
+          className="text-[11px] font-semibold"
+          style={{ backgroundColor: meta.color, color: meta.fg }}
         >
           {name.replace(/[^\p{L}\p{N}]/gu, '').slice(0, 2).toUpperCase() || '??'}
         </AvatarFallback>
@@ -42,8 +42,7 @@ export function ChatAvatar({
       >
         <PlatformIcon
           platform={platform}
-          className="text-white"
-          style={{ width: chip * 0.62, height: chip * 0.62 }}
+          style={{ width: chip * meta.glyph, height: chip * meta.glyph, color: meta.fg }}
         />
       </span>
     </div>
