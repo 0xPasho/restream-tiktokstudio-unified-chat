@@ -229,8 +229,14 @@ npm run typecheck  # tsc --noEmit
 npm run lint       # eslint
 npm run build      # build de producción
 
-npm run shot -- '/?stream' --on-video   # captura el overlay sobre fondo claro
+npm run shot -- '/?stream' --on-video   # captura el overlay sobre una escena simulada
+npm run shot -- --readme                # regenera las dos imágenes de docs/
 ```
+
+Las imágenes del README se renderizan desde `docs/fixture.json` —un conjunto fijo
+de mensajes reales— y no desde lo que haya en el chat en ese momento, así son
+reproducibles y muestran la app haciendo su trabajo en vez de una rebanada
+aleatoria de veinte segundos llena de likes.
 
 La base es un archivo SQLite normal, así que puedes consultarla directo:
 

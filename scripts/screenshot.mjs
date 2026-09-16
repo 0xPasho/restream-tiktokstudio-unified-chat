@@ -8,6 +8,7 @@
  *
  * Requires the dev server to be running. Playwright is a devDependency.
  */
+import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 
 const args = process.argv.slice(2);
@@ -31,11 +32,41 @@ const MOCK_SCENE = `
 /** El indicador de dev de Next no debe salir en las capturas del README. */
 const HIDE_DEV_BADGE = `nextjs-portal { display: none !important; }`;
 
+/**
+ * README mode serves a fixed set of real messages instead of whatever happens to
+ * be in chat. Screenshots stay reproducible, and they show the app doing what it
+ * is for — four platforms, badges, a gift, a follow — rather than a random
+ * 20-second slice dominated by likes.
+ */
+function serveFixture(page) {
+  const fixture = JSON.parse(readFileSync('docs/fixture.json', 'utf8'));
+
+  // Stubbing EventSource rather than intercepting the request, because a
+  // fulfilled response closes immediately — the browser reports the stream as
+  // dead and the header's live dot goes grey. This stays "open" forever.
+  return page.addInitScript((data) => {
+    class FixtureEventSource extends EventTarget {
+      constructor() {
+        super();
+        this.readyState = 1;
+        queueMicrotask(() => {
+          this.dispatchEvent(new Event('open'));
+          this.dispatchEvent(
+            new MessageEvent('init', { data: JSON.stringify(data) }),
+          );
+        });
+      }
+      close() {}
+    }
+    Object.defineProperty(window, 'EventSource', { value: FixtureEventSource });
+  }, { events: fixture.events, stats: fixture.stats, status: fixture.status });
+}
+
 const browser = await chromium.launch();
 
-async function shoot({ url, out, overlay, scene }) {
+async function shoot({ url, out, overlay, scene, fixture }) {
   const page = await browser.newPage({
-    viewport: overlay ? { width: 620, height: 360 } : { width: 460, height: 780 },
+    viewport: overlay ? { width: 620, height: 360 } : { width: 460, height: 840 },
     deviceScaleFactor: 2,
   });
 
@@ -43,9 +74,11 @@ async function shoot({ url, out, overlay, scene }) {
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
 
+  if (fixture) await serveFixture(page);   // debe registrarse antes del goto
+
   await page.goto(url, { waitUntil: 'networkidle' });
   await page.addStyleTag({ content: HIDE_DEV_BADGE });
-  await page.waitForTimeout(6000);
+  await page.waitForTimeout(fixture ? 2500 : 6000);
 
   if (scene) {
     await page.addStyleTag({ content: MOCK_SCENE });
@@ -69,9 +102,15 @@ const base = 'http://localhost:3000';
 
 if (readme) {
   console.log('dashboard:');
-  await shoot({ url: base, out: 'docs/dashboard.png', overlay: false });
+  await shoot({ url: base, out: 'docs/dashboard.png', overlay: false, fixture: true });
   console.log('overlay:');
-  await shoot({ url: `${base}/?stream&max=6`, out: 'docs/overlay.png', overlay: true, scene: true });
+  await shoot({
+    url: `${base}/?stream&max=6`,
+    out: 'docs/overlay.png',
+    overlay: true,
+    scene: true,
+    fixture: true,
+  });
 } else {
   const overlay = path.includes('stream');
   await shoot({

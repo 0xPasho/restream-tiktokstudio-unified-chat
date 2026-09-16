@@ -1,0 +1,279 @@
+{
+  "events": [
+    {
+      "id": 1,
+      "platform": "tiktok",
+      "type": "chat",
+      "ts": 1789528079290,
+      "user_id": "7543623305401304120",
+      "handle": "gabriel.muoz704",
+      "nickname": "Gabrielito",
+      "avatar": "https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/ff49a518ef365877ab1a7af5c59049bc~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=174b36c2&x-expires=1789696800&x-signature=G3QxkALXFk7CoXgzVDE4HlR%2BLTw%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+      "color": null,
+      "text": "me sirve para preguntas? o es solo para código? o es solo un organizador?",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": null
+    },
+    {
+      "id": 2,
+      "platform": "twitch",
+      "type": "chat",
+      "ts": 1789528124290,
+      "user_id": "120711350",
+      "handle": "davidponc_e",
+      "nickname": "davidponc_e",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/0eab1570-c514-40c2-9543-1ee1d6d0062e-profile_image-300x300.png",
+      "color": "#1EE6C0",
+      "text": "Prueba :p",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [
+        {
+          "kind": "badge",
+          "label": "Gold Pixel Heart",
+          "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/1687873b-cf38-412c-aad3-f9a4ce17f8b6/3"
+        }
+      ],
+      "meta": null
+    },
+    {
+      "id": 3,
+      "platform": "tiktok",
+      "type": "chat",
+      "ts": 1789528169290,
+      "user_id": "6891342670536393733",
+      "handle": "valak_301",
+      "nickname": "Valak",
+      "avatar": "https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/a4f08a70f347be2dce4ca2e6c5c6c477~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=5de03bfc&x-expires=1789700400&x-signature=k1d53SjijwLxiip2E0NiyqnKZJc%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+      "color": null,
+      "text": "bro algún tip para usar diferentes cuentas de codex a la vez en un mismo proyecto?",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": null
+    },
+    {
+      "id": 4,
+      "platform": "tiktok",
+      "type": "gift",
+      "ts": 1789528214290,
+      "user_id": "6960087084192678917",
+      "handle": "jair7w",
+      "nickname": "jair",
+      "avatar": "https://p19-common-sign.tiktokcdn.com/tos-maliva-avt-0068/d40847a49df25094014ae480e679ae38~tplv-tiktokx-cropcenter:100:100.webp?dr=14579&refresh_token=3c14eaeb&x-expires=1789696800&x-signature=8tVcmkSUxW0duOGnchZSCCr1tys%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+      "color": null,
+      "text": "envió 1x Rose",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": {
+        "gift": "Rose",
+        "image": "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/eba3a9bb85c33e017f3648eaf88d7189~tplv-obj.png",
+        "count": 1,
+        "diamonds": 1
+      }
+    },
+    {
+      "id": 5,
+      "platform": "kick",
+      "type": "chat",
+      "ts": 1789528259290,
+      "user_id": "129740910.0",
+      "handle": "mxguels",
+      "nickname": "mxguels",
+      "avatar": null,
+      "color": null,
+      "text": "eso me ayuda mucho en linux que los archivos  de codex cli estan todo escondidos jajaja",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": null
+    },
+    {
+      "id": 6,
+      "platform": "tiktok",
+      "type": "chat",
+      "ts": 1789528304290,
+      "user_id": "6960087084192678917",
+      "handle": "jair7w",
+      "nickname": "jair",
+      "avatar": "https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/d40847a49df25094014ae480e679ae38~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=ffc6eaa3&x-expires=1789696800&x-signature=WvqZCJ%2Bro4QFZmpM2Z7NVXAfQBw%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+      "color": null,
+      "text": "que es mejor gpt plus o claude pro?",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": null
+    },
+    {
+      "id": 7,
+      "platform": "youtube",
+      "type": "chat",
+      "ts": 1789528349290,
+      "user_id": "UC48Cla5CiccJhlzNzbCPbWg",
+      "handle": null,
+      "nickname": "@GaboProgramming",
+      "avatar": "https://yt3.ggpht.com/yzld1jjA_oCBwL48fn_vYbh0edUVut0gBmp8Fv7zHq9L4PeM3y2oouVWdBkpVG5ZVzxwQ42H=s64-c-k-c0x00ffffff-no-rj",
+      "color": null,
+      "text": "Haz creado proyectos con codex ?",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": null
+    },
+    {
+      "id": 8,
+      "platform": "tiktok",
+      "type": "follow",
+      "ts": 1789528394290,
+      "user_id": "6891342670536393733",
+      "handle": "valak_301",
+      "nickname": "Valak",
+      "avatar": "https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/a4f08a70f347be2dce4ca2e6c5c6c477~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=5de03bfc&x-expires=1789700400&x-signature=k1d53SjijwLxiip2E0NiyqnKZJc%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+      "color": null,
+      "text": "te empezó a seguir",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": null
+    },
+    {
+      "id": 9,
+      "platform": "tiktok",
+      "type": "chat",
+      "ts": 1789528439290,
+      "user_id": "6833843988542915589",
+      "handle": "tony_tron",
+      "nickname": "Tony-Tik-Tok",
+      "avatar": "https://p16-common-sign.tiktokcdn.com/tos-alisg-avt-0068/f74fcad807332daee5d862d92c1b045f~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=6ea6dfd7&x-expires=1789696800&x-signature=2u%2BRfMk6yQJl%2F6B1usaFSBx13mI%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+      "color": null,
+      "text": "Crees que Hugging Face es buen repositorio para encontrar AI's offline",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": null
+    },
+    {
+      "id": 10,
+      "platform": "kick",
+      "type": "chat",
+      "ts": 1789528484290,
+      "user_id": "129740910.0",
+      "handle": "mxguels",
+      "nickname": "mxguels",
+      "avatar": null,
+      "color": null,
+      "text": "es como editar en vivo :0",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": null
+    },
+    {
+      "id": 11,
+      "platform": "tiktok",
+      "type": "chat",
+      "ts": 1789528529290,
+      "user_id": "6870925655677879298",
+      "handle": "rafofoko",
+      "nickname": "rafaco_",
+      "avatar": "https://p16-common-sign.tiktokcdn.com/tos-alisg-avt-0068/f15da6cb2e4be95a617060669f61e442~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=58848418&x-expires=1789696800&x-signature=hNqYdP3ze1HJqW5KF1HPTghcSEI%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+      "color": null,
+      "text": "En qué compu estás haciendo stream MacBook? O Mac desk?",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": null
+    },
+    {
+      "id": 12,
+      "platform": "tiktok",
+      "type": "chat",
+      "ts": 1789528574290,
+      "user_id": "7163440320059294726",
+      "handle": "nendbebllm1",
+      "nickname": "nendbebllm1",
+      "avatar": "https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/93c479d13cc7ad0cf4a9e3da1c14d474~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=0c7645ef&x-expires=1789696800&x-signature=HGXEnQ5Kl6kTi3D%2FOiNeJW%2Fq7z8%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+      "color": null,
+      "text": "Pasho cuales son lo atajos que mas usas en la max",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": null
+    }
+  ],
+  "stats": {
+    "total": 1655,
+    "byPlatform": [
+      {
+        "platform": "tiktok",
+        "n": 166
+      },
+      {
+        "platform": "twitch",
+        "n": 6
+      },
+      {
+        "platform": "youtube",
+        "n": 7
+      },
+      {
+        "platform": "kick",
+        "n": 11
+      }
+    ],
+    "viewers": [
+      {
+        "platform": "tiktok",
+        "viewers": 1019
+      }
+    ]
+  },
+  "status": {
+    "platforms": {
+      "tiktok": {
+        "state": "connected",
+        "detail": "@pashoai"
+      },
+      "twitch": {
+        "state": "connected",
+        "detail": "pashoai"
+      },
+      "youtube": {
+        "state": "connected",
+        "detail": "pasho | dev + ai"
+      },
+      "kick": {
+        "state": "connected",
+        "detail": "pashoai"
+      }
+    },
+    "errors": []
+  }
+}

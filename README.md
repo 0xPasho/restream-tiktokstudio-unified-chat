@@ -225,8 +225,14 @@ npm run typecheck  # tsc --noEmit
 npm run lint       # eslint
 npm run build      # production build
 
-npm run shot -- '/?stream' --on-video   # screenshot the overlay over a bright background
+npm run shot -- '/?stream' --on-video   # screenshot the overlay over a mock scene
+npm run shot -- --readme                # regenerate both images in docs/
 ```
+
+The README images are rendered from `docs/fixture.json` — a fixed set of real
+messages — rather than from whatever is in chat at that moment, so they stay
+reproducible and actually show the app doing its job instead of a random
+twenty-second slice full of likes.
 
 The database is a plain SQLite file, so you can query it directly:
 
