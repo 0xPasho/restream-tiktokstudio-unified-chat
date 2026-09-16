@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# el ejemplo sí se versiona
+!.env.example
+
+# base de datos local del chat
+/data/
