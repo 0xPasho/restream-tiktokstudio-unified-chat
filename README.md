@@ -68,7 +68,7 @@ Then:
 npm run dev
 ```
 
-Open <http://localhost:3000>. That is the whole setup — there is no second
+Open <http://localhost:7637>. That is the whole setup — there is no second
 process to start.
 
 Once it is running you can change both values from the **gear icon** in the
@@ -109,7 +109,7 @@ Add `?stream` to the URL and the page becomes a transparent, chrome-free overlay
 anchored to the bottom of the screen:
 
 ```
-http://localhost:3000/?stream
+http://localhost:7637/?stream
 ```
 
 <p align="center">
@@ -139,10 +139,10 @@ or `=no` to disable. Joins never appear in the overlay.
 
 ```
 # clears itself after a minute of silence, larger text
-http://localhost:3000/?stream&ttl=60&scale=1.3
+http://localhost:7637/?stream&ttl=60&scale=1.3
 
 # messages and nothing else
-http://localhost:3000/?stream&events=0
+http://localhost:7637/?stream&events=0
 ```
 
 Likes are off by default for a reason: on a busy stream they arrive every second
@@ -217,10 +217,38 @@ reconnects.
 in SQLite and takes precedence — the file is never rewritten, because Next.js
 watches it in dev and would restart the server mid-reconfiguration.
 
+## Running in production
+
+```bash
+npm run build
+npm start
+```
+
+`next start` serves on **port 7637**, the same as `npm run dev`. The collectors
+start here too — `instrumentation.ts` runs on `next start`, not just in dev — so
+production behaves exactly like development: one process, nothing else to launch.
+
+To use a different port, pass it through:
+
+```bash
+npm run dev -- -p 3000
+npm start -- -p 3000
+```
+
+Keep in mind this is a **long-lived stateful server**, not a request/response app.
+It holds open WebSockets and writes to a local SQLite file, so it does not fit
+serverless platforms. Run it on a machine that stays up: your own box, a VPS, or
+a container with a persistent volume mounted at `data/`.
+
+Because SQLite is a local file, `data/chat.db` is the whole database. Back it up
+by copying it — but copy `chat.db-wal` alongside it, or use
+`sqlite3 data/chat.db ".backup backup.db"` to get a consistent snapshot while the
+collectors are writing.
+
 ## Development
 
 ```bash
-npm run dev        # server + collectors
+npm run dev        # server + collectors on http://localhost:7637
 npm run typecheck  # tsc --noEmit
 npm run lint       # eslint
 npm run build      # production build

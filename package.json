@@ -22,9 +22,9 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 7637",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 7637",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "shot": "node scripts/screenshot.mjs"

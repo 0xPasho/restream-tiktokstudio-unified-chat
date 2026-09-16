@@ -98,7 +98,7 @@ async function shoot({ url, out, overlay, scene, fixture }) {
   await page.close();
 }
 
-const base = 'http://localhost:3000';
+const base = process.env.APP_URL ?? 'http://localhost:7637';
 
 if (readme) {
   console.log('dashboard:');

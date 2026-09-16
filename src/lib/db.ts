@@ -15,7 +15,10 @@ let db: Database.Database | null = null;
  */
 function conn(): Database.Database | null {
   if (db) return db;
-  if (!existsSync(DB_PATH)) return null;
+  // `turbopackIgnore` porque DB_PATH se resuelve en tiempo de ejecución (puede
+  // venir de CHAT_DB_PATH). Sin esto el analizador no puede acotar la ruta y
+  // arrastra todo el proyecto al bundle del servidor.
+  if (!existsSync(/* turbopackIgnore: true */ DB_PATH)) return null;
   db = new Database(DB_PATH, { readonly: true });
   db.pragma('journal_mode = WAL');   // read without blocking the collector
   return db;

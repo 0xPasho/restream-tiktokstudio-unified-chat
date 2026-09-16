@@ -69,7 +69,7 @@ Y luego:
 npm run dev
 ```
 
-Abre <http://localhost:3000>. Esa es toda la instalación: no hay un segundo
+Abre <http://localhost:7637>. Esa es toda la instalación: no hay un segundo
 proceso que arrancar.
 
 Una vez corriendo puedes cambiar ambos valores desde la **tuerquita** en la
@@ -110,7 +110,7 @@ Agrega `?stream` a la URL y la página se vuelve un overlay transparente, sin
 cabecera ni controles, anclado abajo:
 
 ```
-http://localhost:3000/?stream
+http://localhost:7637/?stream
 ```
 
 <p align="center">
@@ -141,10 +141,10 @@ Los booleanos aceptan `?likes`, `?likes=1` o `?likes=true` para activar; `=0`,
 
 ```
 # se limpia solo tras un minuto de silencio, texto más grande
-http://localhost:3000/?stream&ttl=60&scale=1.3
+http://localhost:7637/?stream&ttl=60&scale=1.3
 
 # mensajes y nada más
-http://localhost:3000/?stream&events=0
+http://localhost:7637/?stream&events=0
 ```
 
 Los likes vienen apagados por una razón: en un live activo llegan cada segundo y
@@ -221,10 +221,40 @@ persiste en SQLite y tiene prioridad — el archivo nunca se reescribe, porque
 Next.js lo observa en desarrollo y reiniciaría el servidor justo a medio
 reconfigurar.
 
+## Correrlo en producción
+
+```bash
+npm run build
+npm start
+```
+
+`next start` sirve en el **puerto 7637**, el mismo que `npm run dev`. Los
+colectores también arrancan aquí — `instrumentation.ts` corre con `next start`, no
+sólo en desarrollo — así que producción se comporta igual que desarrollo: un solo
+proceso y nada más que levantar.
+
+Para usar otro puerto, pásalo de largo:
+
+```bash
+npm run dev -- -p 3000
+npm start -- -p 3000
+```
+
+Ten en cuenta que esto es un **servidor con estado y de larga vida**, no una app
+de petición y respuesta. Mantiene WebSockets abiertos y escribe en un archivo
+SQLite local, así que no encaja en plataformas serverless. Córrelo en una máquina
+que se quede encendida: la tuya, un VPS, o un contenedor con un volumen
+persistente montado en `data/`.
+
+Como SQLite es un archivo local, `data/chat.db` es toda la base de datos. Para
+respaldarla basta con copiarla — pero copia también `chat.db-wal`, o usa
+`sqlite3 data/chat.db ".backup respaldo.db"` para obtener una instantánea
+consistente mientras los colectores escriben.
+
 ## Desarrollo
 
 ```bash
-npm run dev        # servidor + colectores
+npm run dev        # servidor + colectores en http://localhost:7637
 npm run typecheck  # tsc --noEmit
 npm run lint       # eslint
 npm run build      # build de producción
