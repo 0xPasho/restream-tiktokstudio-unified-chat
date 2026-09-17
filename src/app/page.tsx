@@ -24,7 +24,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   if ('stream' in sp) {
     const opts: OverlayOptions = {
       ttl: num(sp.ttl, 0, 0, 3600),        // 0 = los mensajes no caducan
-      max: num(sp.max, 12, 1, 60),
+      max: num(sp.max, 6, 1, 60),
       scale: num(sp.scale, 1.1, 0.5, 3),   // un poco más grande: se lee de lejos
       opacity: num(sp.opacity, 0.82, 0, 1),
       outline: flag(sp.outline, true),

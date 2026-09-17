@@ -35,14 +35,15 @@ const NEVER = new Set(['join']);
 
 export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
   const { events } = useChatStream({ max: Math.max(opts.max * 2, 60) });
-  const bottom = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLUListElement>(null);
 
   // Con ttl activo hay que re-renderizar para que los mensajes caduquen solos,
   // aunque no llegue nada nuevo.
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!opts.ttl) return;
-    const id = setInterval(() => setNow(Date.now()), 1000);
+    const id = setInterval(() => setNow(Date.now()), 100);
     return () => clearInterval(id);
   }, [opts.ttl]);
 
@@ -59,8 +60,25 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
   }, [events, opts.events, opts.likes, opts.bots, opts.ttl, opts.max, now]);
 
   useEffect(() => {
-    bottom.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [visible.length]);
+    const frame = container.current;
+    const feed = list.current;
+    if (!frame || !feed) return;
+
+    // Keep layout measurable, but never broadcast half of an older bubble.
+    const fit = () => {
+      const top = frame.getBoundingClientRect().top + parseFloat(getComputedStyle(frame).paddingTop);
+      for (const child of feed.children) {
+        const row = child as HTMLElement;
+        row.style.visibility = row.offsetTop + feed.getBoundingClientRect().top < top - 1 ? 'hidden' : 'visible';
+      }
+    };
+    const observer = new ResizeObserver(fit);
+    observer.observe(frame);
+    observer.observe(feed);
+    for (const child of feed.children) observer.observe(child);
+    fit();
+    return () => observer.disconnect();
+  }, [visible]);
 
   /**
    * Contorno real alrededor de las letras, no una sombra difusa.
@@ -73,18 +91,19 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
   const textEdge: React.CSSProperties = opts.outline
     ? {
         paintOrder: 'stroke fill',
-        WebkitTextStroke: '0.085em rgba(0,0,0,0.92)',
-        textShadow: '0 1px 2px rgba(0,0,0,0.85)',
+        WebkitTextStroke: '0.045em rgba(0,0,0,0.92)',
+        textShadow: '0 1px 2px rgba(0,0,0,0.6)',
       }
     : { textShadow: '0 1px 3px rgba(0,0,0,0.9)' };
 
   return (
     <div
+      ref={container}
       data-overlay
       className="flex h-dvh w-full flex-col justify-end overflow-hidden p-3"
       style={{ fontSize: `${opts.scale}rem` }}
     >
-      <ul className="flex flex-col gap-[0.4em]">
+      <ul ref={list} className="relative flex shrink-0 flex-col gap-[0.35em]">
         {visible.map((e) => {
           const name = e.nickname ?? e.handle ?? 'anónimo';
           const isChat = e.type === 'chat';
@@ -97,10 +116,11 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
               // justo ese caso. Por eso el fondo es casi opaco por defecto y se
               // puede subir con ?opacity.
               className={cn(
-                'animate-overlay-in flex w-fit max-w-full items-start gap-[0.5em] rounded-[0.7em]',
-                'px-[0.6em] py-[0.4em] backdrop-blur-sm',
+                'animate-overlay-in flex w-fit max-w-full items-start gap-[0.5em] rounded-[0.55em]',
+                'px-[0.6em] py-[0.3em] backdrop-blur-sm',
               )}
               style={{
+                ...(opts.ttl ? { opacity: Math.min(1, Math.max(0, (opts.ttl * 1000 - (now - e.ts)) / 1000)), transition: 'opacity 100ms linear' } : {}),
                 backgroundColor: `rgba(9, 9, 11, ${isChat ? opts.opacity : opts.opacity * 0.9})`,
               }}
             >
@@ -108,13 +128,13 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
                 platform={e.platform}
                 avatar={e.avatar}
                 name={name}
-                size={Math.round(opts.scale * 30)}
+                size={Math.round(opts.scale * 24)}
               />
 
               <div className="min-w-0">
                 <span className="mr-[0.4em] inline-flex items-center gap-[0.3em] align-middle">
                   <span
-                    className="text-[0.95em] font-bold"
+                    className="text-[0.85em] font-semibold"
                     style={{ color: e.color ?? userColor(e.user_id ?? e.handle ?? name), ...textEdge }}
                   >
                     {name}
@@ -124,7 +144,7 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
 
                 <span
                   className={cn(
-                    'text-[0.95em] leading-snug font-medium break-words',
+                    'text-[0.95em] leading-normal font-normal break-words',
                     isChat ? 'text-white' : 'text-white/90 italic',
                   )}
                   style={textEdge}
@@ -142,7 +162,6 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
           );
         })}
       </ul>
-      <div ref={bottom} />
     </div>
   );
 }

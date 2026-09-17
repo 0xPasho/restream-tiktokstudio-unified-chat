@@ -170,10 +170,10 @@ body:has([data-overlay]) {
 }
 
 .animate-overlay-in {
-  animation: overlay-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: overlay-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Si el sistema pide menos movimiento, el mensaje aparece sin desplazarse. */
 @media (prefers-reduced-motion: reduce) {
-  .animate-overlay-in { animation: none; }
+  .animate-overlay-in { animation: none; transition: none !important; }
 }

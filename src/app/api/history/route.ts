@@ -1,3 +1,4 @@
+import { getChatSession } from '@/server/session';
 import { eventsBefore } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -15,9 +16,10 @@ export async function GET(req: Request) {
   const raw = Number(searchParams.get('limit'));
   const limit = Number.isFinite(raw) ? Math.min(200, Math.max(1, raw)) : 80;
 
-  const events = eventsBefore(before, limit);
+  const session = getChatSession();
+  const events = eventsBefore(before, limit, session.afterId);
 
   // `hasMore` a partir del tamaño devuelto: si vino una página completa asumimos
   // que hay más. Evita un COUNT(*) por scroll.
-  return Response.json({ events, hasMore: events.length === limit });
+  return Response.json({ events, hasMore: events.length === limit, sessionId: session.id });
 }

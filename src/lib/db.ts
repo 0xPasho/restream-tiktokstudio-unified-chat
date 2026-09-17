@@ -45,12 +45,12 @@ const COLS = `id, platform, type, ts, user_id, handle, nickname, avatar, color, 
               is_bot, is_moderator, is_subscriber, is_first, badges, meta`;
 
 /** Últimos N eventos, devueltos en orden cronológico (el más viejo primero). */
-export function recentEvents(limit = 120): ChatEvent[] {
+export function recentEvents(limit = 120, afterId = 0): ChatEvent[] {
   const c = conn();
   if (!c) return [];
   const rows = c
-    .prepare(`SELECT ${COLS} FROM events ORDER BY id DESC LIMIT ?`)
-    .all(limit) as Row[];
+    .prepare(`SELECT ${COLS} FROM events WHERE id > ? ORDER BY id DESC LIMIT ?`)
+    .all(afterId, limit) as Row[];
   return rows.reverse().map(hydrate);
 }
 
@@ -69,22 +69,22 @@ export function eventsSince(sinceId: number, limit = 200): ChatEvent[] {
  * feed al llegar arriba del todo: el SSE sólo manda una ventana reciente, y sin
  * esto el historial existe en SQLite pero no hay forma de alcanzarlo.
  */
-export function eventsBefore(beforeId: number, limit = 80): ChatEvent[] {
+export function eventsBefore(beforeId: number, limit = 80, afterId = 0): ChatEvent[] {
   const c = conn();
   if (!c) return [];
   const rows = c
-    .prepare(`SELECT ${COLS} FROM events WHERE id < ? ORDER BY id DESC LIMIT ?`)
-    .all(beforeId, limit) as Row[];
+    .prepare(`SELECT ${COLS} FROM events WHERE id < ? AND id > ? ORDER BY id DESC LIMIT ?`)
+    .all(beforeId, afterId, limit) as Row[];
   return rows.reverse().map(hydrate);
 }
 
-export function stats() {
+export function stats(afterId = 0) {
   const c = conn();
   if (!c) return { total: 0, byPlatform: [], viewers: [] };
   const total = (c.prepare(`SELECT COUNT(*) n FROM events`).get() as { n: number }).n;
   const byPlatform = c
-    .prepare(`SELECT platform, COUNT(*) n FROM events WHERE type='chat' GROUP BY platform`)
-    .all() as { platform: string; n: number }[];
+    .prepare(`SELECT platform, COUNT(*) n FROM events WHERE type='chat' AND id > ? GROUP BY platform`)
+    .all(afterId) as { platform: string; n: number }[];
   const viewers = c
     .prepare(`SELECT platform, viewers FROM metrics WHERE ts = (SELECT MAX(ts) FROM metrics m2 WHERE m2.platform = metrics.platform)`)
     .all() as { platform: string; viewers: number }[];

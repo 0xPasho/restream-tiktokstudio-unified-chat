@@ -25,12 +25,16 @@ export type Stats = {
 export function useChatStream({
   max = 2000,
   onFresh,
+  onSessionChange,
 }: {
   max?: number;
   onFresh?: (fresh: ChatEvent[]) => void;
+  onSessionChange?: () => void;
 } = {}) {
   const [events, setEvents] = useState<ChatEvent[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
+  const sessionRef = useRef<{ id: number; afterId: number } | null>(null);
+  const onSessionChangeRef = useRef(onSessionChange);
   const [live, setLive] = useState(false);
 
   // Guardar el callback en un ref evita que cambiar su identidad reabra el
@@ -39,7 +43,8 @@ export function useChatStream({
   const onFreshRef = useRef(onFresh);
   useEffect(() => {
     onFreshRef.current = onFresh;
-  }, [onFresh]);
+    onSessionChangeRef.current = onSessionChange;
+  }, [onFresh, onSessionChange]);
 
   useEffect(() => {
     const es = new EventSource('/api/stream');
@@ -49,7 +54,18 @@ export function useChatStream({
 
     es.addEventListener('init', (e) => {
       const d = JSON.parse((e as MessageEvent).data);
-      setEvents(d.events);
+      const session = d.session ?? { id: 0, afterId: 0 };
+      const changed = sessionRef.current?.id !== session.id;
+      sessionRef.current = session;
+      if (changed) onSessionChangeRef.current?.();
+      setEvents((prev) => {
+        if (changed) return d.events.slice(-max);
+        // Reconnection retains the loaded conversation and merges missed messages.
+        const merged = new Map<number, ChatEvent>(prev.map((event) => [event.id, event]));
+        for (const event of d.events as ChatEvent[]) merged.set(event.id, event);
+        return [...merged.values()].filter((event) => event.id > session.afterId)
+          .sort((a, b) => a.id - b.id).slice(-max);
+      });
       setStats({ ...d.stats, status: d.status });
       setLive(true);
     });
@@ -71,10 +87,11 @@ export function useChatStream({
   }, [max]);
 
   /** Antepone una página de historial, sin duplicar lo que ya está en pantalla. */
-  const prepend = useCallback((older: ChatEvent[]) => {
+  const prepend = useCallback((older: ChatEvent[], sessionId: number) => {
+    if (sessionRef.current?.id !== sessionId) return;
     setEvents((prev) => {
       const known = new Set(prev.map((e) => e.id));
-      const fresh = older.filter((e) => !known.has(e.id));
+      const fresh = older.filter((e) => !known.has(e.id) && e.id > (sessionRef.current?.afterId ?? 0));
       return fresh.length ? [...fresh, ...prev] : prev;
     });
   }, []);

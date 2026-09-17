@@ -9,6 +9,9 @@ export type ViewPrefs = {
   showJoins: boolean;
   /** Mostrar mensajes de bots como Streamlabs. */
   showBots: boolean;
+  showLikes: boolean;
+  textSize: number;
+  mentionHandle: string;
 };
 
 const KEY = 'chat-view-prefs';
@@ -17,6 +20,9 @@ const DEFAULTS: ViewPrefs = {
   messagesOnly: false,
   showJoins: false,
   showBots: true,
+  showLikes: false,
+  textSize: 16,
+  mentionHandle: '',
 };
 
 /**
@@ -69,6 +75,7 @@ export function passesView(
   prefs: ViewPrefs,
 ): boolean {
   if (prefs.messagesOnly && e.type !== 'chat') return false;
+  if (!prefs.showLikes && e.type === 'like') return false;
   if (!prefs.showJoins && e.type === 'join') return false;
   if (!prefs.showBots && e.is_bot) return false;
   return true;

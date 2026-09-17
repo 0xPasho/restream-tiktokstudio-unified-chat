@@ -24,13 +24,22 @@ export function ChatFeed() {
   const [pinned, setPinned] = useState(true);   // pegado al fondo
   const pinnedRef = useRef(true);               // el mismo dato, legible desde callbacks
   const [unread, setUnread] = useState(0);
-
+  const historyGeneration = useRef(0);
   // Contar los no leídos aquí, donde llegan los datos, evita un setState
   // dentro de un efecto y el render extra por mensaje que eso implica.
-  const { events, stats, prepend } = useChatStream({
+  const { events, stats, live, prepend } = useChatStream({
     max: MAX,
+    onSessionChange: () => {
+      historyGeneration.current += 1;
+      pinnedRef.current = true;
+      setPinned(true);
+      setUnread(0);
+      setHasMore(true);
+      setLoadingOlder(false);
+      loadingRef.current = false;
+    },
     onFresh: (fresh) => {
-      if (!pinnedRef.current) setUnread((n) => n + fresh.length);
+      if (!pinnedRef.current) setUnread((n) => n + fresh.filter((e) => !hidden.has(e.platform) && passesView(e, prefs)).length);
     },
   });
 
@@ -52,24 +61,29 @@ export function ChatFeed() {
     loadingRef.current = true;
     setLoadingOlder(true);
     const before = el.scrollHeight;
+    const generation = historyGeneration.current;
 
     try {
       const res = await fetch(`/api/history?before=${oldest.id}&limit=${PAGE}`);
-      const data: { events: ChatEvent[]; hasMore: boolean } = await res.json();
+      const data: { events: ChatEvent[]; hasMore: boolean; sessionId: number } = await res.json();
 
+      if (generation !== historyGeneration.current) return;
       if (data.events.length) {
-        prepend(data.events);
+        prepend(data.events, data.sessionId);
         // Esperar al repintado para medir la altura nueva.
         requestAnimationFrame(() => {
+          if (generation !== historyGeneration.current) return;
           el.scrollTop += el.scrollHeight - before;
         });
       }
       setHasMore(data.hasMore);
     } catch {
-      setHasMore(false);   // no reintentar en bucle si el endpoint falla
+      if (generation === historyGeneration.current) setHasMore(false);   // no reintentar en bucle si el endpoint falla
     } finally {
-      loadingRef.current = false;
-      setLoadingOlder(false);
+      if (generation === historyGeneration.current) {
+        loadingRef.current = false;
+        setLoadingOlder(false);
+      }
     }
   }, [events, hasMore, prepend]);
 
@@ -85,7 +99,7 @@ export function ChatFeed() {
     if (!pinnedRef.current) return;
     const el = scroller.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [visible.length]);
+  }, [visible, prefs.textSize]);
 
   const onScroll = useCallback(() => {
     const el = scroller.current;
@@ -120,10 +134,17 @@ export function ChatFeed() {
   const connected = PLATFORMS.filter((p) => stats?.status?.platforms?.[p]?.state === 'connected')
     .map((p) => PLATFORM_META[p].label);
 
+  const connectionWarnings = PLATFORMS.flatMap((p) => {
+    const state = stats?.status?.platforms?.[p]?.state;
+    return state === 'error' || state === 'disconnected' || state === 'connecting'
+      ? [`${PLATFORM_META[p].label}: ${state === 'error' ? 'error de conexión' : 'reconectando…'}`]
+      : [];
+  });
+
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl border border-white/8 bg-[#0d0d10]">
       {/* ── encabezado: los logos son el título ── */}
-      <header className="flex items-center gap-1 border-b border-white/8 px-2 py-2">
+      <header className="flex flex-wrap items-center gap-1 border-b border-white/8 px-2 py-2">
         {PLATFORMS.map((p) => {
           const off = hidden.has(p);
           const conn = stats?.status?.platforms?.[p];
@@ -137,6 +158,7 @@ export function ChatFeed() {
                 counts[p] ? `${counts[p]} mensajes` : null,
                 off ? 'oculto — clic para mostrar' : 'clic para ocultar',
               ].filter(Boolean).join(' · ')}
+              aria-label={`${PLATFORM_META[p].label}: ${off ? 'mostrar' : 'ocultar'} mensajes`}
               aria-pressed={!off}
               className={cn(
                 'flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium transition',
@@ -155,10 +177,16 @@ export function ChatFeed() {
           );
         })}
 
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
           <SettingsDialog stats={stats} />
         </div>
       </header>
+
+      {(!live || connectionWarnings.length > 0) && (
+        <div role="status" className="border-b border-amber-400/10 bg-amber-400/5 px-3 py-2 text-xs text-amber-200">
+          {!live ? 'Reconectando al chat…' : connectionWarnings.join(' · ')}
+        </div>
+      )}
 
       {/* ── feed ── */}
       <div className="relative min-h-0 flex-1">
@@ -198,13 +226,15 @@ export function ChatFeed() {
               )}
               {!hasMore && (
                 <li className="py-2 text-center text-[11px] text-zinc-700">
-                  Principio del historial
+                  Principio del directo
                 </li>
               )}
               {visible.map((e, i) => (
                 <ChatMessage
                   key={e.id}
                   event={e}
+                  textSize={prefs.textSize}
+                  mentionHandle={prefs.mentionHandle}
                   showTime={i === 0 || e.ts - visible[i - 1].ts > 60_000}
                 />
               ))}
@@ -224,12 +254,13 @@ export function ChatFeed() {
       </div>
 
       {/* ── pie: sólo recuerda que estás viendo una vista recortada ── */}
-      {(prefs.messagesOnly || !prefs.showBots) && (
+      {(prefs.messagesOnly || !prefs.showBots || !prefs.showLikes) && (
         <footer className="flex items-center gap-2 border-t border-white/8 px-3 py-1.5 text-[11px] text-zinc-500">
           {prefs.messagesOnly && (
             <span className="rounded-full bg-white/8 px-1.5 py-px text-zinc-300">sólo mensajes</span>
           )}
           {!prefs.showBots && <span>sin bots</span>}
+          {!prefs.showLikes && !prefs.messagesOnly && <span>sin likes</span>}
         </footer>
       )}
     </div>

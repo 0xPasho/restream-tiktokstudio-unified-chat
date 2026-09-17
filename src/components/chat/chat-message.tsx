@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { Gift, Heart, LogIn, Share2, UserPlus, Zap } from 'lucide-react';
 import { ChatAvatar } from './chat-avatar';
 import { ChatBadges } from './chat-badges';
-import { PLATFORM_META, type EventType } from '@/lib/types';
+import type { EventType } from '@/lib/types';
 import type { FeedItem } from '@/lib/collapse';
 import { userColor } from '@/lib/user-color';
 import { cn } from '@/lib/utils';
@@ -12,8 +12,8 @@ import { cn } from '@/lib/utils';
 /** Eventos que no son texto: se pintan como una tira compacta, no como mensaje. */
 const SYSTEM: Partial<Record<EventType, { Icon: typeof Gift; cls: string }>> = {
   gift:   { Icon: Gift,     cls: 'text-pink-300 bg-pink-500/8' },
-  like:   { Icon: Heart,    cls: 'text-rose-300 bg-rose-500/8' },
-  follow: { Icon: UserPlus, cls: 'text-emerald-300 bg-emerald-500/8' },
+  like:   { Icon: Heart,    cls: 'text-zinc-400' },
+  follow: { Icon: UserPlus, cls: 'text-zinc-400' },
   share:  { Icon: Share2,   cls: 'text-amber-300 bg-amber-500/8' },
   join:   { Icon: LogIn,    cls: 'text-zinc-400 bg-white/[0.03]' },
   sub:    { Icon: Zap,      cls: 'text-violet-300 bg-violet-500/8' },
@@ -45,13 +45,19 @@ function withLinks(text: string) {
 export const ChatMessage = memo(function ChatMessage({
   event,
   showTime,
+  textSize = 16,
+  mentionHandle = '',
 }: {
   event: FeedItem;
   showTime: boolean;
+  textSize?: number;
+  mentionHandle?: string;
 }) {
-  const meta = PLATFORM_META[event.platform] ?? PLATFORM_META.restream;
   const name = event.nickname ?? event.handle ?? 'anónimo';
   const sys = SYSTEM[event.type];
+  const handle = mentionHandle.trim().replace(/^@/, '').toLocaleLowerCase();
+  const mentioned = !!handle && (event.text ?? '').toLocaleLowerCase()
+    .split(/[^\p{L}\p{N}_.]+/u).includes(handle);
   const nameColor = event.color ?? userColor(event.user_id ?? event.handle ?? name);
 
   if (sys) {
@@ -61,7 +67,7 @@ export const ChatMessage = memo(function ChatMessage({
         <Icon className="size-3.5 shrink-0" strokeWidth={2.25} />
         <ChatAvatar platform={event.platform} avatar={event.avatar} name={name} size={20} />
         <span className="truncate font-medium text-zinc-200">{name}</span>
-        <span className="truncate text-current/80">{event.text}</span>
+        <span className="truncate text-current" title={event.text ?? undefined}>{event.text}</span>
         {event.collapsed && event.collapsed > 1 && (
           <span className="shrink-0 rounded-full bg-white/8 px-1.5 text-[10px] font-semibold text-zinc-300 tabular-nums">
             ×{event.collapsed}
@@ -76,18 +82,12 @@ export const ChatMessage = memo(function ChatMessage({
     <li
       className={cn(
         'group relative flex gap-2.5 rounded-lg py-1.5 pr-2 pl-3 transition-colors hover:bg-white/[0.04]',
-        event.is_first && 'bg-fuchsia-500/[0.07] ring-1 ring-inset ring-fuchsia-500/20',
+        mentioned && 'bg-sky-400/[0.08] ring-1 ring-inset ring-sky-400/25',
+        !mentioned && event.is_first && 'bg-fuchsia-500/[0.07] ring-1 ring-inset ring-fuchsia-500/20',
         event.is_bot && 'opacity-55',
       )}
     >
-      {/* franja lateral en el color de la plataforma: identificable de reojo */}
-      <span
-        className="absolute inset-y-1.5 left-0 w-[2px] rounded-full opacity-0 transition-opacity group-hover:opacity-60"
-        style={{ backgroundColor: meta.color }}
-        aria-hidden
-      />
-
-      <ChatAvatar platform={event.platform} avatar={event.avatar} name={name} />
+      <ChatAvatar platform={event.platform} avatar={event.avatar} name={name} size={30} />
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
@@ -101,6 +101,9 @@ export const ChatMessage = memo(function ChatMessage({
 
           <ChatBadges badges={event.badges} />
 
+          {mentioned && (
+            <span className="rounded-full bg-sky-400/15 px-1.5 py-px text-[10px] font-semibold text-sky-200">te menciona</span>
+          )}
           {event.is_first && (
             <span className="rounded-full bg-fuchsia-500/20 px-1.5 py-px text-[10px] font-semibold text-fuchsia-200">
               primer mensaje
@@ -112,7 +115,7 @@ export const ChatMessage = memo(function ChatMessage({
           </time>
         </div>
 
-        <p className="mt-0.5 text-[14px] leading-snug break-words text-zinc-100">
+        <p className="mt-0.5 leading-normal break-words text-zinc-100" style={{ fontSize: textSize }}>
           {withLinks(event.text ?? '')}
         </p>
       </div>

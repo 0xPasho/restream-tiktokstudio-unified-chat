@@ -1,4 +1,5 @@
 import { eventsSince, recentEvents, stats } from '@/lib/db';
+import { getChatSession } from '@/server/session';
 import { status } from '@/server/status';
 
 export const dynamic = 'force-dynamic';
@@ -24,13 +25,23 @@ export async function GET(req: Request) {
         } catch { closed = true; }
       };
 
-      const initial = recentEvents(120);
-      lastId = initial.at(-1)?.id ?? 0;
-      send('init', { events: initial, stats: stats(), status });
+      let session = getChatSession();
+      const initialize = () => {
+        const initial = recentEvents(120, session.afterId);
+        lastId = initial.at(-1)?.id ?? session.afterId;
+        send('init', { events: initial, stats: stats(session.afterId), status, session });
+      };
+      initialize();
 
       const tick = setInterval(() => {
         if (closed) return;
         try {
+          const current = getChatSession();
+          if (current.id !== session.id) {
+            session = current;
+            initialize();
+            return;
+          }
           const fresh = eventsSince(lastId);
           if (fresh.length) {
             lastId = fresh.at(-1)!.id;
@@ -42,7 +53,7 @@ export async function GET(req: Request) {
       }, 400);
 
       // el estado de conexión viaja con las métricas: un solo tick para ambos
-      const statsTick = setInterval(() => send('stats', { ...stats(), status }), 3000);
+      const statsTick = setInterval(() => send('stats', { ...stats(session.afterId), status }), 3000);
 
       const cleanup = () => {
         closed = true;
