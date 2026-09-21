@@ -257,6 +257,40 @@ by copying it — but copy `chat.db-wal` alongside it, or use
 `sqlite3 data/chat.db ".backup backup.db"` to get a consistent snapshot while the
 collectors are writing.
 
+### As a background service (macOS)
+
+`scripts/service.sh` installs the chat as a launchd agent: a plain `node`
+process that starts at login, restarts itself if it dies, and survives closing
+the terminal.
+
+```bash
+./scripts/service.sh install    # build, copy, load the agent
+./scripts/service.sh update     # rebuild after code changes
+./scripts/service.sh status     # state, pid, HTTP check
+./scripts/service.sh logs       # tail stdout and stderr
+./scripts/service.sh stop       # stop and stay stopped
+./scripts/service.sh uninstall  # remove the agent
+```
+
+It builds with `output: 'standalone'` and copies the result out of the repo to
+`~/.local/share/unified-live-chat`, so the running process is
+`node .../start.js` rather than the Next.js CLI. That matters more than it
+sounds: the process is also renamed to `unified-live-chat`, which keeps it out
+of the blast radius of tooling that sweeps dev servers with `pkill -f next` or
+by killing whatever holds a port. Settings live in SQLite, so no secrets end up
+in the plist.
+
+Run the service **or** `npm run dev`, never both: they bind the same port on
+different interfaces and you end up with two sets of collectors on one database,
+opening duplicate TikTok connections. `install` and `start` refuse to run if the
+port is already taken; `update` does not, since it restarts the service in place.
+
+One caveat worth knowing if you change the build: the standalone bundle does not
+include `.next/server/instrumentation.js`, and Next.js loads that file inside a
+`try/catch` that swallows `MODULE_NOT_FOUND`. Miss it and the app serves pages
+perfectly with no collectors and no error anywhere. `service.sh` copies the hook
+and its traced dependencies after every build for exactly this reason.
+
 ## Development
 
 ```bash

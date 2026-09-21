@@ -263,6 +263,42 @@ respaldarla basta con copiarla — pero copia también `chat.db-wal`, o usa
 `sqlite3 data/chat.db ".backup respaldo.db"` para obtener una instantánea
 consistente mientras los colectores escriben.
 
+### Como servicio en segundo plano (macOS)
+
+`scripts/service.sh` instala el chat como agente de launchd: un proceso de
+`node` normal que arranca al iniciar sesión, se relanza solo si algo lo mata y
+sobrevive a cerrar la terminal.
+
+```bash
+./scripts/service.sh install    # construye, copia y carga el agente
+./scripts/service.sh update     # reconstruye tras cambiar código
+./scripts/service.sh status     # estado, pid y chequeo HTTP
+./scripts/service.sh logs       # sigue stdout y stderr
+./scripts/service.sh stop       # lo detiene y no se relanza
+./scripts/service.sh uninstall  # quita el agente
+```
+
+Construye con `output: 'standalone'` y copia el resultado fuera del repo, a
+`~/.local/share/unified-live-chat`, así que el proceso que corre es
+`node .../start.js` y no la CLI de Next. Eso importa más de lo que parece: el
+proceso además se renombra a `unified-live-chat`, lo que lo deja fuera del
+alcance de las herramientas que barren servidores de desarrollo con
+`pkill -f next` o matando lo que ocupe un puerto. Los ajustes viven en SQLite,
+así que en el plist no queda ningún secreto.
+
+Usa el servicio **o** `npm run dev`, nunca los dos: se atan al mismo puerto por
+interfaces distintas y acabas con dos juegos de colectores sobre una sola base,
+abriendo conexiones duplicadas a TikTok. `install` y `start` se niegan a correr
+si el puerto ya está ocupado; `update` no, porque reinicia el servicio en su
+sitio.
+
+Un detalle que conviene saber si tocas el build: el bundle de standalone no
+incluye `.next/server/instrumentation.js`, y Next carga ese archivo dentro de un
+`try/catch` que se traga el `MODULE_NOT_FOUND`. Si falta, la app sirve las
+páginas perfecto, sin colectores y sin un solo error en ningún lado.
+`service.sh` copia el hook y sus dependencias trazadas después de cada build
+justamente por eso.
+
 ## Desarrollo
 
 ```bash
