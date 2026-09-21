@@ -254,13 +254,12 @@ export function ChatFeed() {
       </div>
 
       {/* ── pie: sólo recuerda que estás viendo una vista recortada ── */}
-      {(prefs.messagesOnly || !prefs.showBots || !prefs.showLikes) && (
+      {(prefs.messagesOnly || !prefs.showBots) && (
         <footer className="flex items-center gap-2 border-t border-white/8 px-3 py-1.5 text-[11px] text-zinc-500">
           {prefs.messagesOnly && (
             <span className="rounded-full bg-white/8 px-1.5 py-px text-zinc-300">sólo mensajes</span>
           )}
           {!prefs.showBots && <span>sin bots</span>}
-          {!prefs.showLikes && !prefs.messagesOnly && <span>sin likes</span>}
         </footer>
       )}
     </div>
