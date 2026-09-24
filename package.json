@@ -25,6 +25,7 @@
     "dev": "next dev -p 7637",
     "build": "next build",
     "start": "next start -p 7637",
+    "test": "node --test tests/",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "shot": "node scripts/screenshot.mjs"

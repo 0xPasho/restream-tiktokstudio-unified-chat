@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChatAvatar } from './chat-avatar';
 import { ChatBadges } from './chat-badges';
+import { TipChip } from './tip-chip';
 import { collapse } from '@/lib/collapse';
+import { tipLevel, tipOf } from '@/lib/tip';
 import { useChatStream } from '@/lib/use-chat-stream';
 import { userColor } from '@/lib/user-color';
 import type { ChatEvent } from '@/lib/types';
@@ -107,6 +109,9 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
         {visible.map((e) => {
           const name = e.nickname ?? e.handle ?? 'anónimo';
           const isChat = e.type === 'chat';
+          const tip = tipOf(e.meta);
+          const level = tip ? tipLevel(tip) : -1;
+          const paid = level >= 1;
 
           return (
             <li
@@ -121,7 +126,15 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
               )}
               style={{
                 ...(opts.ttl ? { opacity: Math.min(1, Math.max(0, (opts.ttl * 1000 - (now - e.ts)) / 1000)), transition: 'opacity 100ms linear' } : {}),
-                backgroundColor: `rgba(9, 9, 11, ${isChat ? opts.opacity : opts.opacity * 0.9})`,
+                // Lo pagado sube a fondo opaco: es lo único del overlay que no
+                // puede perderse contra la escena.
+                backgroundColor: `rgba(9, 9, 11, ${paid ? Math.min(1, opts.opacity + 0.12) : isChat ? opts.opacity : opts.opacity * 0.9})`,
+                // El aro va en `em` y no en píxeles para que aguante cualquier
+                // `?scale`, y en `box-shadow` para no mover el layout ni medio
+                // píxel: con borde real las filas pagadas bailarían.
+                ...(paid
+                  ? { boxShadow: `inset 0 0 0 ${0.035 + level * 0.015}em rgba(252, 211, 77, ${0.45 + level * 0.15})` }
+                  : {}),
               }}
             >
               <ChatAvatar
@@ -140,6 +153,11 @@ export function ChatOverlay({ opts }: { opts: OverlayOptions }) {
                     {name}
                   </span>
                   <ChatBadges badges={e.badges} />
+                  {/* El nivel 0 no lleva píldora aquí: en el overlay manda lo
+                      que ve el público, y una rosa de un diamante no merece la
+                      misma etiqueta dorada que un super chat de mil pesos. En
+                      el panel sí aparece — eso lo ves tú, no ellos. */}
+                  {paid && tip && <TipChip tip={tip} variant="overlay" />}
                 </span>
 
                 <span

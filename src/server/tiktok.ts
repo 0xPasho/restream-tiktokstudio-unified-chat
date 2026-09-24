@@ -52,6 +52,8 @@ export function startTikTok({
 
   conn.on(WebcastEvent.GIFT, (e: any) => {
     if (e.gift?.type === 1 && e.repeatEnd !== 1) return;   // racha de combo aún abierta
+    const repeat = Number(e.repeatCount) || 1;
+    const diamonds = (Number(e.gift?.diamondCount) || 0) * repeat;
     insert({
       ...base('gift', e),
       text: `envió ${e.repeatCount}x ${e.gift?.name ?? 'regalo'}`,
@@ -60,6 +62,10 @@ export function startTikTok({
         image: e.gift?.image?.urlList?.[0],
         count: e.repeatCount,
         diamonds: e.gift?.diamondCount,
+        // Los diamantes del combo entero, no los de una unidad: 50 rosas de
+        // golpe valen lo que 50 rosas, y es el total el que decide si la fila
+        // se resalta. Con el mismo formato que Twitch, YouTube y Kick.
+        ...(diamonds > 0 ? { tip: { kind: 'diamonds', amount: diamonds } } : {}),
       },
     });
   });
