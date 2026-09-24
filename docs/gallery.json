@@ -1,0 +1,298 @@
+{
+  "examples": [
+    {
+      "name": "chat",
+      "title": "Chat",
+      "event": {
+        "id": 1,
+        "platform": "tiktok",
+        "type": "chat",
+        "ts": 1789528616290,
+        "user_id": "6891342670536393733",
+        "handle": "valak_301",
+        "nickname": "Valak",
+        "avatar": "https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/a4f08a70f347be2dce4ca2e6c5c6c477~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=5de03bfc&x-expires=1789700400&x-signature=k1d53SjijwLxiip2E0NiyqnKZJc%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+        "color": null,
+        "text": "bro algún tip para usar diferentes cuentas de codex a la vez?",
+        "is_bot": false,
+        "is_moderator": false,
+        "is_subscriber": false,
+        "is_first": false,
+        "badges": [],
+        "meta": null
+      }
+    },
+    {
+      "name": "chat-badges",
+      "title": "Chat with badges",
+      "event": {
+        "id": 1,
+        "platform": "twitch",
+        "type": "chat",
+        "ts": 1789528616290,
+        "user_id": "120711350",
+        "handle": "davidponc_e",
+        "nickname": "davidponc_e",
+        "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/0eab1570-c514-40c2-9543-1ee1d6d0062e-profile_image-300x300.png",
+        "color": "#1EE6C0",
+        "text": "Prueba :p",
+        "is_bot": false,
+        "is_moderator": true,
+        "is_subscriber": true,
+        "is_first": false,
+        "badges": [
+          {
+            "kind": "mod",
+            "label": "Moderador"
+          },
+          {
+            "kind": "badge",
+            "label": "Gold Pixel Heart",
+            "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/1687873b-cf38-412c-aad3-f9a4ce17f8b6/3"
+          }
+        ],
+        "meta": null
+      }
+    },
+    {
+      "name": "follow",
+      "title": "Follow",
+      "event": {
+        "id": 1,
+        "platform": "tiktok",
+        "type": "follow",
+        "ts": 1789528616290,
+        "user_id": "6891342670536393733",
+        "handle": "valak_301",
+        "nickname": "Valak",
+        "avatar": "https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/a4f08a70f347be2dce4ca2e6c5c6c477~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=5de03bfc&x-expires=1789700400&x-signature=k1d53SjijwLxiip2E0NiyqnKZJc%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+        "color": null,
+        "text": "te empezó a seguir",
+        "is_bot": false,
+        "is_moderator": false,
+        "is_subscriber": false,
+        "is_first": false,
+        "badges": [],
+        "meta": null
+      }
+    },
+    {
+      "name": "raid",
+      "title": "Raid",
+      "event": {
+        "id": 1,
+        "platform": "twitch",
+        "type": "raid",
+        "ts": 1789528616290,
+        "user_id": "120711350",
+        "handle": "davidponc_e",
+        "nickname": "davidponc_e",
+        "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/0eab1570-c514-40c2-9543-1ee1d6d0062e-profile_image-300x300.png",
+        "color": "#1EE6C0",
+        "text": "llegó de raid con 120 viewers",
+        "is_bot": false,
+        "is_moderator": false,
+        "is_subscriber": true,
+        "is_first": false,
+        "badges": [],
+        "meta": null
+      }
+    },
+    {
+      "name": "gift",
+      "title": "Gift · level 0",
+      "event": {
+        "id": 1,
+        "platform": "tiktok",
+        "type": "gift",
+        "ts": 1789528616290,
+        "user_id": "6960087084192678917",
+        "handle": "jair7w",
+        "nickname": "jair",
+        "avatar": "https://p19-common-sign.tiktokcdn.com/tos-maliva-avt-0068/d40847a49df25094014ae480e679ae38~tplv-tiktokx-cropcenter:100:100.webp?dr=14579&refresh_token=3c14eaeb&x-expires=1789696800&x-signature=8tVcmkSUxW0duOGnchZSCCr1tys%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+        "color": null,
+        "text": "envió 1x Rose",
+        "is_bot": false,
+        "is_moderator": false,
+        "is_subscriber": false,
+        "is_first": false,
+        "badges": [],
+        "meta": {
+          "gift": "Rose",
+          "tip": {
+            "kind": "diamonds",
+            "amount": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "superchat",
+      "title": "Super Chat · level 1",
+      "event": {
+        "id": 1,
+        "platform": "youtube",
+        "type": "chat",
+        "ts": 1789528616290,
+        "user_id": "UCq8k2ZB1pFnAqJ4l0kQmWvA",
+        "handle": null,
+        "nickname": "@adankay4817",
+        "avatar": "https://yt3.ggpht.com/yzld1jjA_oCBwL48fn_vYbh0edUVut0gBmp8Fv7zHq9L4PeM3y2oouVWdBkpVG5ZVzxwQ42H=s64-c-k-c0x00ffffff-no-rj",
+        "color": null,
+        "text": "¿Qué teclado usas? El stream está buenísimo",
+        "is_bot": false,
+        "is_moderator": false,
+        "is_subscriber": false,
+        "is_first": false,
+        "badges": [],
+        "meta": {
+          "tip": {
+            "kind": "money",
+            "amount": 100,
+            "currency": "MXN",
+            "display": "MX$100.00"
+          }
+        }
+      }
+    },
+    {
+      "name": "sub",
+      "title": "Sub · level 1",
+      "event": {
+        "id": 1,
+        "platform": "twitch",
+        "type": "sub",
+        "ts": 1789528616290,
+        "user_id": "120711350",
+        "handle": "davidponc_e",
+        "nickname": "davidponc_e",
+        "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/0eab1570-c514-40c2-9543-1ee1d6d0062e-profile_image-300x300.png",
+        "color": "#1EE6C0",
+        "text": "se suscribió",
+        "is_bot": false,
+        "is_moderator": false,
+        "is_subscriber": true,
+        "is_first": false,
+        "badges": [],
+        "meta": {
+          "tip": {
+            "kind": "sub",
+            "tier": "2",
+            "months": 6
+          }
+        }
+      }
+    },
+    {
+      "name": "bits",
+      "title": "Bits · level 2",
+      "event": {
+        "id": 1,
+        "platform": "twitch",
+        "type": "chat",
+        "ts": 1789528616290,
+        "user_id": "120711350",
+        "handle": "davidponc_e",
+        "nickname": "davidponc_e",
+        "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/0eab1570-c514-40c2-9543-1ee1d6d0062e-profile_image-300x300.png",
+        "color": "#1EE6C0",
+        "text": "GG Pasho, toma para el café",
+        "is_bot": false,
+        "is_moderator": false,
+        "is_subscriber": true,
+        "is_first": false,
+        "badges": [],
+        "meta": {
+          "tip": {
+            "kind": "bits",
+            "amount": 2000
+          }
+        }
+      }
+    },
+    {
+      "name": "gifted-subs",
+      "title": "Gifted subs · level 2",
+      "event": {
+        "id": 1,
+        "platform": "kick",
+        "type": "sub",
+        "ts": 1789528616290,
+        "user_id": "129740910.0",
+        "handle": "mxguels",
+        "nickname": "mxguels",
+        "avatar": null,
+        "color": null,
+        "text": "regaló 5 subs",
+        "is_bot": false,
+        "is_moderator": false,
+        "is_subscriber": false,
+        "is_first": false,
+        "badges": [],
+        "meta": {
+          "tip": {
+            "kind": "sub",
+            "count": 5
+          }
+        }
+      }
+    },
+    {
+      "name": "diamonds",
+      "title": "Diamonds · level 2",
+      "event": {
+        "id": 1,
+        "platform": "tiktok",
+        "type": "gift",
+        "ts": 1789528616290,
+        "user_id": "6960087084192678917",
+        "handle": "jair7w",
+        "nickname": "jair",
+        "avatar": "https://p19-common-sign.tiktokcdn.com/tos-maliva-avt-0068/d40847a49df25094014ae480e679ae38~tplv-tiktokx-cropcenter:100:100.webp?dr=14579&refresh_token=3c14eaeb&x-expires=1789696800&x-signature=8tVcmkSUxW0duOGnchZSCCr1tys%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
+        "color": null,
+        "text": "envió 5x Galaxy",
+        "is_bot": false,
+        "is_moderator": false,
+        "is_subscriber": false,
+        "is_first": false,
+        "badges": [],
+        "meta": {
+          "gift": "Galaxy",
+          "tip": {
+            "kind": "diamonds",
+            "amount": 5000
+          }
+        }
+      }
+    },
+    {
+      "name": "superchat-big",
+      "title": "Super Chat · level 3",
+      "event": {
+        "id": 1,
+        "platform": "youtube",
+        "type": "chat",
+        "ts": 1789528616290,
+        "user_id": "UCq8k2ZB1pFnAqJ4l0kQmWvA",
+        "handle": null,
+        "nickname": "@adankay4817",
+        "avatar": "https://yt3.ggpht.com/yzld1jjA_oCBwL48fn_vYbh0edUVut0gBmp8Fv7zHq9L4PeM3y2oouVWdBkpVG5ZVzxwQ42H=s64-c-k-c0x00ffffff-no-rj",
+        "color": null,
+        "text": "¡Feliz cumpleaños Pasho! Gracias por todo lo que enseñas",
+        "is_bot": false,
+        "is_moderator": false,
+        "is_subscriber": false,
+        "is_first": false,
+        "badges": [],
+        "meta": {
+          "tip": {
+            "kind": "money",
+            "amount": 1000,
+            "currency": "MXN",
+            "display": "MX$1,000.00"
+          }
+        }
+      }
+    }
+  ]
+}

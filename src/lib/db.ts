@@ -90,3 +90,11 @@ export function stats(afterId = 0) {
     .all() as { platform: string; viewers: number }[];
   return { total, byPlatform, viewers };
 }
+
+/** Un evento por id. `null` si no existe o si aún no hay base. */
+export function eventById(id: number): ChatEvent | null {
+  const c = conn();
+  if (!c) return null;
+  const row = c.prepare(`SELECT ${COLS} FROM events WHERE id = ?`).get(id) as Row | undefined;
+  return row ? hydrate(row) : null;
+}

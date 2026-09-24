@@ -9,7 +9,7 @@ transparent overlay.
 ---
 
 <p align="center">
-  <img src="docs/dashboard.png" width="440" alt="Unified dashboard showing TikTok, Twitch, YouTube and Kick messages in one feed">
+  <img src="docs/dashboard.png" width="540" alt="Unified dashboard showing TikTok, Twitch, YouTube and Kick messages in one feed">
 </p>
 
 <p align="center">
@@ -103,6 +103,98 @@ These are stored in `localStorage`. They are per-browser display preferences and
 apply instantly, unlike the token and handle which change the collector's
 sockets and live in SQLite.
 
+## A message as a video card
+
+A stream short usually opens on the question the streamer answers, and that question is a
+message in this chat. `?card=<id>` draws one message as a card sized for a vertical canvas:
+1000px wide at scale 1, near-opaque, transparent around it, with the avatar embedded so the
+picture outlives TikTok's expiring links.
+
+```bash
+npm run shot -- --card 1442                 # → /tmp/card-1442.png, alpha channel
+npm run shot -- --card 1442 --out card.png
+```
+
+<p align="center">
+  <img src="docs/card.png" width="540" alt="A viewer's chat message drawn as a card for a vertical video">
+</p>
+
+The clapperboard that appears next to a message's time in the dashboard opens the same view
+in a tab, which is how you find the id. `?scale=` resizes the whole card; the id is the
+row's own, so a video editor that reads `chat.db` can ask for the same message.
+
+## Money
+
+Super Chats, subs, bits, gifted subs and TikTok gifts carry their value into the
+feed and the overlay.
+
+| Platform | What arrives | What you see |
+|---|---|---|
+| YouTube | Super Chat amount and currency | the platform's own figure, `MX$100.00` |
+| Twitch | bits, sub tier, months, gifted count | `2,000 bits`, `Tier 2 · 6 months` |
+| Kick | sub months and gifted count | `Sub · ×5 gifted` |
+| TikTok | diamonds of the whole combo | `5,000` with a gem |
+
+**Only YouTube exposes actual money.** A Twitch or Kick sub carries a tier, not a
+price — the dollar figure behind `Tier 2` is the platform's list price, not
+something the API said. Bits and diamonds convert at their published rate.
+
+The amount shown is always the one the platform sent, never a conversion of
+ours. Rates are used for one thing only: deciding how much a row stands out.
+Four levels, one color — gold, and gold means money here and nothing else:
+
+| Level | Roughly | How it renders |
+|---|---|---|
+| 0 | under $2 | the usual compact strip, with a small pill |
+| 1 | $2–$10 | a card with a gold ring |
+| 2 | $10–$50 | brighter ring |
+| 3 | $50+ | brightest ring, solid pill |
+
+Level 0 has no pill in the overlay. A one-diamond rose does not deserve the same
+gold tag as a thousand-peso Super Chat on your viewers' screens — you still see
+it in the dashboard, which is yours.
+
+### Gallery
+
+Each kind of message, alone, as your viewers see it in the overlay and as you
+see it in the dashboard. Regenerate with `npm run shot -- --gallery`.
+
+| | Overlay | Dashboard |
+|---|---|---|
+| Chat | ![](docs/messages/overlay-chat.png) | ![](docs/messages/feed-chat.png) |
+| Chat with badges | ![](docs/messages/overlay-chat-badges.png) | ![](docs/messages/feed-chat-badges.png) |
+| Follow | ![](docs/messages/overlay-follow.png) | ![](docs/messages/feed-follow.png) |
+| Raid | ![](docs/messages/overlay-raid.png) | ![](docs/messages/feed-raid.png) |
+| Gift · level 0 | ![](docs/messages/overlay-gift.png) | ![](docs/messages/feed-gift.png) |
+| Super Chat · level 1 | ![](docs/messages/overlay-superchat.png) | ![](docs/messages/feed-superchat.png) |
+| Sub · level 1 | ![](docs/messages/overlay-sub.png) | ![](docs/messages/feed-sub.png) |
+| Bits · level 2 | ![](docs/messages/overlay-bits.png) | ![](docs/messages/feed-bits.png) |
+| Gifted subs · level 2 | ![](docs/messages/overlay-gifted-subs.png) | ![](docs/messages/feed-gifted-subs.png) |
+| Diamonds · level 2 | ![](docs/messages/overlay-diamonds.png) | ![](docs/messages/feed-diamonds.png) |
+| Super Chat · level 3 | ![](docs/messages/overlay-superchat-big.png) | ![](docs/messages/feed-superchat-big.png) |
+
+### When an amount does not show up
+
+Restream's embed WebSocket is undocumented, so the collector looks for the
+*names* of the money fields (`amount`, `amountMicros`, `formattedAmount`,
+`bits`, `tier`…) anywhere in the payload instead of reading fixed paths. When it
+finds nothing, the event is still stored with its raw payload in `meta.raw`, and
+any `eventTypeId` that is not mapped yet gets logged once with a sample. Nothing
+is silently dropped:
+
+```bash
+# event types that arrived without a mapping
+sqlite3 data/chat.db "SELECT json_extract(meta,'\$.rawType'), COUNT(*) FROM events
+  WHERE meta LIKE '%rawType%' GROUP BY 1"
+
+# the raw payloads, to find out what the amount field is called
+sqlite3 data/chat.db "SELECT platform, json_extract(meta,'\$.raw') FROM events
+  WHERE meta LIKE '%raw%' ORDER BY id DESC LIMIT 20"
+```
+
+`CHAT_RAW=1` keeps the raw payload of *every* event, chat included. Useful for
+one stream when you are hunting a field; wasteful as a permanent setting.
+
 ## OBS overlay
 
 Add `?stream` to the URL and the page becomes a transparent, chrome-free overlay
@@ -113,7 +205,7 @@ http://localhost:7637/?stream
 ```
 
 <p align="center">
-  <img src="docs/overlay.png" width="620" alt="Transparent chat overlay composited over a video scene">
+  <img src="docs/overlay.png" width="720" alt="Transparent chat overlay composited over a video scene">
 </p>
 
 In **OBS**: add a *Browser* source, paste that URL, and check *Shutdown source
@@ -224,6 +316,7 @@ reconnects.
 | `RESTREAM_CHAT_TOKEN` | for Twitch/YouTube/Kick | — |
 | `TIKTOK_USERNAME` | for TikTok | — |
 | `CHAT_DB_PATH` | no | `./data/chat.db` |
+| `CHAT_RAW` | no | off — `1` stores every raw payload |
 
 `.env` provides the initial values. Anything saved from the gear icon is stored
 in SQLite and takes precedence — the file is never rewritten, because Next.js
@@ -295,18 +388,27 @@ and its traced dependencies after every build for exactly this reason.
 
 ```bash
 npm run dev        # server + collectors on http://localhost:7637
+npm test           # node --test tests/
 npm run typecheck  # tsc --noEmit
 npm run lint       # eslint
 npm run build      # production build
 
 npm run shot -- '/?stream' --on-video   # screenshot the overlay over a mock scene
 npm run shot -- --readme                # regenerate both images in docs/
+npm run shot -- --gallery               # one crop per message kind, into docs/messages/
+npm run shot -- --card 1442 --out docs/card.png   # one message as a video card
 ```
 
 The README images are rendered from `docs/fixture.json` — a fixed set of real
 messages — rather than from whatever is in chat at that moment, so they stay
 reproducible and actually show the app doing its job instead of a random
-twenty-second slice full of likes.
+twenty-second slice full of likes. The script shoots whatever is listening on
+`:7637`; if that is the launchd service, it serves the *built* bundle, so after
+touching the UI either rebuild it or point the script at a dev server:
+
+```bash
+APP_URL=http://localhost:7638 npm run shot -- --readme
+```
 
 The database is a plain SQLite file, so you can query it directly:
 

@@ -28,8 +28,10 @@ export function ChatAvatar({
       <Avatar className="size-full ring-1 ring-white/10">
         <AvatarImage src={avatar ?? undefined} alt="" loading="lazy" />
         <AvatarFallback
-          className="text-[11px] font-semibold"
-          style={{ backgroundColor: meta.color, color: meta.fg }}
+          className="font-semibold"
+          // Proporcional al tamaño: la tarjeta para video usa avatares de 96px y
+          // unas iniciales de 11px ahí parecen un error de render.
+          style={{ backgroundColor: meta.color, color: meta.fg, fontSize: Math.max(11, Math.round(size * 0.36)) }}
         >
           {name.replace(/[^\p{L}\p{N}]/gu, '').slice(0, 2).toUpperCase() || '??'}
         </AvatarFallback>

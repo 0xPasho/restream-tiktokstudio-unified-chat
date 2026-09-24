@@ -1,24 +1,6 @@
 {
   "events": [
     {
-      "id": 1,
-      "platform": "tiktok",
-      "type": "chat",
-      "ts": 1789528079290,
-      "user_id": "7543623305401304120",
-      "handle": "gabriel.muoz704",
-      "nickname": "Gabrielito",
-      "avatar": "https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/ff49a518ef365877ab1a7af5c59049bc~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=174b36c2&x-expires=1789696800&x-signature=G3QxkALXFk7CoXgzVDE4HlR%2BLTw%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
-      "color": null,
-      "text": "me sirve para preguntas? o es solo para código? o es solo un organizador?",
-      "is_bot": false,
-      "is_moderator": false,
-      "is_subscriber": false,
-      "is_first": false,
-      "badges": [],
-      "meta": null
-    },
-    {
       "id": 2,
       "platform": "twitch",
       "type": "chat",
@@ -80,7 +62,11 @@
         "gift": "Rose",
         "image": "https://p16-webcast.tiktokcdn.com/img/maliva/webcast-va/eba3a9bb85c33e017f3648eaf88d7189~tplv-obj.png",
         "count": 1,
-        "diamonds": 1
+        "diamonds": 1,
+        "tip": {
+          "kind": "diamonds",
+          "amount": 1
+        }
       }
     },
     {
@@ -94,24 +80,6 @@
       "avatar": null,
       "color": null,
       "text": "eso me ayuda mucho en linux que los archivos  de codex cli estan todo escondidos jajaja",
-      "is_bot": false,
-      "is_moderator": false,
-      "is_subscriber": false,
-      "is_first": false,
-      "badges": [],
-      "meta": null
-    },
-    {
-      "id": 6,
-      "platform": "tiktok",
-      "type": "chat",
-      "ts": 1789528304290,
-      "user_id": "6960087084192678917",
-      "handle": "jair7w",
-      "nickname": "jair",
-      "avatar": "https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/d40847a49df25094014ae480e679ae38~tplv-tiktok-shrink:72:72.webp?dr=14561&refresh_token=ffc6eaa3&x-expires=1789696800&x-signature=WvqZCJ%2Bro4QFZmpM2Z7NVXAfQBw%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=fdd36af4&idc=my2",
-      "color": null,
-      "text": "que es mejor gpt plus o claude pro?",
       "is_bot": false,
       "is_moderator": false,
       "is_subscriber": false,
@@ -174,24 +142,6 @@
       "meta": null
     },
     {
-      "id": 10,
-      "platform": "kick",
-      "type": "chat",
-      "ts": 1789528484290,
-      "user_id": "129740910.0",
-      "handle": "mxguels",
-      "nickname": "mxguels",
-      "avatar": null,
-      "color": null,
-      "text": "es como editar en vivo :0",
-      "is_bot": false,
-      "is_moderator": false,
-      "is_subscriber": false,
-      "is_first": false,
-      "badges": [],
-      "meta": null
-    },
-    {
       "id": 11,
       "platform": "tiktok",
       "type": "chat",
@@ -226,10 +176,59 @@
       "is_first": false,
       "badges": [],
       "meta": null
+    },
+    {
+      "id": 13,
+      "platform": "youtube",
+      "type": "chat",
+      "ts": 1789528616290,
+      "user_id": "UCq8k2ZB1pFnAqJ4l0kQmWvA",
+      "handle": null,
+      "nickname": "@adankay4817",
+      "avatar": "https://yt3.ggpht.com/yzld1jjA_oCBwL48fn_vYbh0edUVut0gBmp8Fv7zHq9L4PeM3y2oouVWdBkpVG5ZVzxwQ42H=s64-c-k-c0x00ffffff-no-rj",
+      "color": null,
+      "text": "¿Qué teclado usas? El stream está buenísimo",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": false,
+      "is_first": false,
+      "badges": [],
+      "meta": {
+        "tip": {
+          "kind": "money",
+          "amount": 100,
+          "currency": "MXN",
+          "display": "MX$100.00"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "platform": "twitch",
+      "type": "sub",
+      "ts": 1789528645290,
+      "user_id": "120711350",
+      "handle": "davidponc_e",
+      "nickname": "davidponc_e",
+      "avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/0eab1570-c514-40c2-9543-1ee1d6d0062e-profile_image-300x300.png",
+      "color": "#1EE6C0",
+      "text": "se suscribió",
+      "is_bot": false,
+      "is_moderator": false,
+      "is_subscriber": true,
+      "is_first": false,
+      "badges": [],
+      "meta": {
+        "tip": {
+          "kind": "sub",
+          "tier": "2",
+          "months": 6
+        }
+      }
     }
   ],
   "stats": {
-    "total": 1655,
+    "total": 1657,
     "byPlatform": [
       {
         "platform": "tiktok",
@@ -241,7 +240,7 @@
       },
       {
         "platform": "youtube",
-        "n": 7
+        "n": 8
       },
       {
         "platform": "kick",

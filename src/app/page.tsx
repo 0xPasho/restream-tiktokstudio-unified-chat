@@ -1,5 +1,8 @@
 import { ChatFeed } from '@/components/chat/chat-feed';
 import { ChatOverlay, type OverlayOptions } from '@/components/chat/chat-overlay';
+import { MessageCard } from '@/components/chat/message-card';
+import { eventById } from '@/lib/db';
+import { inlineAvatar } from '@/server/avatar';
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -19,6 +22,18 @@ const num = (v: string | string[] | undefined, fallback: number, min: number, ma
 
 export default async function Page({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;
+
+  // ?card=<id> dibuja un solo mensaje como tarjeta para video, con fondo transparente
+  if ('card' in sp) {
+    const id = Number(one(sp.card));
+    const event = Number.isInteger(id) && id > 0 ? eventById(id) : null;
+    if (!event) {
+      return <main className="p-6 text-sm text-zinc-400">No hay ningún mensaje con id {one(sp.card) ?? '(vacío)'}.</main>;
+    }
+    // El avatar se incrusta ahora: la captura vive más que el enlace firmado de TikTok.
+    const avatar = await inlineAvatar(event.avatar);
+    return <MessageCard event={{ ...event, avatar }} scale={num(sp.scale, 1, 0.5, 3)} />;
+  }
 
   // ?stream activa el modo overlay para OBS / TikTok Studio
   if ('stream' in sp) {
